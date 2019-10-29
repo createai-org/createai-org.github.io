@@ -1,0 +1,263 @@
+<html>
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  > 
+	<link rel="stylesheet" href="aibook.css"  > 
+  
+    <script src="jquery-3.3.1.slim.min.js"  ></script>
+    <script src="popper.min.js"  ></script>
+    <script src="bootstrap.min.js"   ></script>
+  
+    <script src="jquery.min.js"></script> 
+    
+   <link href="https://fonts.googleapis.com/css?family=Faustina&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet"/>
+</head>
+<style>
+    
+ 
+	
+	
+	body{
+		font-family: 'Nunito Sans', sans-serif;
+		color:#333333; 
+	}
+
+	 
+
+</style>
+
+
+
+ 
+<body style='background-color:white;font-family:Nunito Sans;background-color:#aeaeae;'>
+ 
+<div class="container p-5"> 
+    <div class="row" >  
+	<br>
+	<br>
+	
+	<br> 
+			</div>
+			
+			
+			
+	
+	 <div class="row">  
+			 <div class="col-sm">
+				<a href='part4.html'><< Prev: 4.Encoding stimuli</a>
+			 </div>
+			 
+			 <div class="col-sm-2"  > 
+				 <a href='index.html'>Index</a>
+			 </div>  
+			 
+			
+			 <div class="col-sm-5"   >  
+				<a href='part6.html'>>> Next: 6. Designing an Artificial Lifeform</a>
+			 </div>
+	    
+	     
+	</div>
+	
+	   
+	
+	<div class="row p-5"   >  
+		<div class="col-sm-12"  > 
+			<center> 
+			<h1 style='padding:18px;background-color:#eaeaae'>Part 5 : Connectome</h1>
+			</center>   
+<dd>
+	<br>
+<h3  id="section5.1">5.1. Neural connections</h3>
+ 
+<dd> 
+	A <i><b>Connectome</b></i> is the map of the connections between neurons in the brain.
+<p></p>
+	These inter-neuronal connections facilitate in encoding stimuli, deciphering stimuli and shaping the lifeform's overall behaviour.
+	All incoming stimuli is encoded in the brain in the form of connections between neurons. 
+<p></p>
+	When a new memory is formed, it is done so through modification of the weights of the inter-neuronal connections.
+	Impluses to initiate and implement specific actions are encoded by these connections.
+<br><br><br>
+<h3 id="section5.2">5.2. Two Types of Connections</h3>
+	<dd><p>
+	<p></p>
+	  In this model, Connections are differentiated into two categories :
+	  <p/>
+		<p/>&nbsp;&nbsp;1.&nbsp;&nbsp;   <b>hardwired connections</b> , which are stable and don't strengthen/weaken 
+		<p/>&nbsp;&nbsp;2.&nbsp;&nbsp;   <b>dynamic connections</b> ,  which are created based on neural activity and allowed to strenghten &amp; weaken. 
+	 
+	<p></p> 
+
+	</p>
+	</dd>
+<br>
+	<h3  id="section5.3">5.3. Innate (hardwired) connections for survival</h3>
+	<dd><p>
+		Neuronal connections which enable <i>food-seeking</i> and <i>danger avoidance</i> aid the survival of the lifeform. 
+		When a biological organism has just been born, it has to survive in a specific environment, and innate connections related to food-seeking/danger-avoidance behaviour aid in its survival.
+		
+<p></p>
+		Such innate connections enable <i>"Primitive reflexes"</i> <sup><a href='part8.html#r2'>[2]</a></sup> , which is the execution of certain motor action sequences on encountering a particular stimuli.
+		For example, in human infants,  <i>rooting reflex</i>,  <i>stepping reflex</i>,  <i>palmar grasp reflex</i>,etc. are observed.
+		After sometime after birth, such reflexes either come under voluntary control, or fade away.
+<p></p>
+		Therefore any Artificial Lifeform should be preloaded with some innate connections to enable survival in the specific environment it is supposed to be 'placed'.
+</dd></p>	
+
+<br><br>	 
+		<h3  id="section5.4">5.4. Creation of new dynamic connections	</h3>
+
+		 
+	<dd><p>
+		
+		Sensory organs receive the stimuli many times per second and transmit the signals to the brain simultaneously as a continuous datastream.
+		The brain receives sensory datastreams of various types (vision,sound,etc.) simultaneously.
+		Regions of the brain are specifically mapped to sensory type (eg: visual stimuli mapped to  occipital lobe).
+		To form an association between stimuli, connections need to be formed between the corresponding neurons that encode the different stimuli.
+<p></p>
+
+	Let <b>H </b>be the maximum delay allowed in forming connections  ie., connections with a delay of upto <b>t+H </b>synaptic timesteps are allowed in the brain.
+	<br><br>
+		<span style='font-weight:bold;font-size:0.9em;color:#555'>Criteria for new connection formation :	</span> 
+		<br>
+		<ul>
+		<li>In this model,criteria for forming  new connections will be based on Hebbian learning, which can be loosely stated as <i>"Neurons that fire (almost) together, wire together"</i>. 
+</li>
+		<li>If neuron A and neuron B are activated within a short time (within  <b>H</b>  synaptic timesteps of each other), then a dynamic connection is created between neuron A and neuron B. (provided that neural pathway is permitted)</li>
+		<li>For example, if <span style='color:darkred;font-weight:bold;'>neuron A </span> fires at time <b>t</b> and <span style='color:darkred;font-weight:bold;'>neuron B </span> fires at <b>t+X</b> synaptic timestep,  a <b>(t+X)</b> dynamic connection is created from neuron A to neuron B. <i> (where 1&lt;=X&lt;=H )</i> </li>
+
+</ul>
+		
+		
+	</p> </dd> 
+
+
+	
+	<br><br>
+	<h3  id="section5.5">5.5. Strengthening of existing dynamic connections	</h3>
+	<dd><p>
+	<span style='font-weight:bold;font-size:0.9em;color:#555'>Criteria for strenghtening an existing dynamic connection   :	</span> 
+	<ul><li>
+		When  <span style='color:darkred;font-weight:bold;'>neuron A </span> fires at time <b>t</b> ,
+		 and <span style='color:darkred;font-weight:bold;'>neuron B </span> fires at timestep <b>t+X</b> , and a dynamic <b>t+X</b> connection already exists, then the connection strength of the <b>t+X</b> connection from <b>A</b> to <b>B</b>  will be increased at each instance, upto a set limit. (where 1&lt;=X&lt;=H) 
+	</li></ul>
+		
+	</p> </dd> 
+<br><br>
+	<h3  id="section5.6">5.6. Weakening of existing dynamic connections	</h3>
+	<dd><p>
+	
+	
+	<span style='font-weight:bold;font-size:0.9em;color:#555'>Criteria for weakening an existing dynamic connection   :	</span> 
+	<p></p>
+	
+	<ol type='A'  >
+	 	
+	<li >
+		<i>Hardwired connections</i> are deemed stable and not strengthened or weakened.
+	</li>
+	
+	<li>Whenever a neuron fires, all its incoming <i>dynamic connections</i> are weakened except those dynamic connections which caused it to fire.
+	This criteria is based on known research findings<sup><a href='part8.html#r3'>[r3]</a></sup>
+	 </ol>
+  
+	</p> </dd> 
+
+
+
+
+
+<br><br>
+	<h3  id="section5.7">5.7. Explaining Classical conditioning using this model	</h3>
+	<dd><p>
+	
+	Using the above criteria for dynamic connection creation/strenghtening/weakening, it is possible to explain how (Pavolovian) classical conditioning can occur.
+	<br> <br> 
+	In the following two examples,
+	<br> &nbsp; &bull; &nbsp; &nbsp; Let  neuron "A" be the "Unconditioned Stimulus"  and "neuron C" firing be the "Unconditioned Response".
+	<br> &nbsp; &bull; &nbsp; &nbsp; Let neuron B be the "neutral stimulus"
+	<br> &nbsp; &bull; &nbsp; &nbsp; When the Unconditioned stimulus A and neutral stimulus B are fired simultaneously, a (t+X) connection forms between the neutral stimulus B and the unconditioned response C.
+	<br>
+	
+		  <div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+				 <span style='font-size:0.7em;text-align:center;padding:5px;color:darkred'>Interactive examples</span>
+		
+			 
+		 
+			  <br><br><br><b> Classical conditioning : Example 1</b>
+			  <br>
+		<div style='padding:9px;font-size:0.8em;text-align:left;'>	  <br> In this example, H=1, so upto (t+1) connections are allowed to form.
+			  <br><br> <b>Step 1:</b>  &nbsp;  Click <span style='color:#111111	'>"Activate both A and B simultaneously"</span>: This creates a new connection  from B to C , and the connection weight w strenghtens on each instance, upto w=3.
+			  <br><br> <b>Step 2:</b>  &nbsp;  Click "Activate only B"  : Using the newly formed connection, triggering B alone will cause C to fire.
+			  <br><br> <b>Step 3:</b>  &nbsp;  Click "Activate only A"  : Since A causes C to fire at time t without B being active at (t-1), the criteria for weakening is satisfied, and therefore the strength of the <b>t+1</b> dynamic connection from <b>B</b>  to <b>C</b>  is weakened repeatedly, until it is removed.
+		</div>	  
+	   <center> 
+		    <span style='font-size:0.7em;float:right;'><a target="_blank" href='connectome_001.html'><img src='newwindow.png'/></a></span> 
+			 <iframe   src='connectome_001.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no"  width=100% height=830   ></iframe> 
+		 
+			  
+			 <br><br><br><hr> 
+			 
+		<br><b> Classical conditioning : Example 2</b>
+			  <br>
+		<div style='padding:9px;font-size:0.8em;text-align:left;'>	  <br> In this example, H=2, so upto (t+2) connections are allowed to form.
+			  <br> An additional  neutral stimulus B1 is introduced, and is excited simultaneously as the Unconditioned stimulus A and netural stimulus B.
+			  <br><br> <b>Step 1:</b>  &nbsp;  Click <span style='color:#111111	'>"Activate  A, B and B1 simultaneously"</span>: This creates new t+1 &amp;t+2 connections  from B to C and B1 to C, and the connection weight w strenghtens on each instance, upto w=3.
+			  <br><br> <b>Step 2:</b>  &nbsp;  Click "Activate only B"  : Using the newly formed connection, triggering B alone will cause C to fire. At the same time, since B1 didn't cause C to fire, the dynamic connection from B1 to C is weakened repeatedly, until it is removed.
+			  <br><br> <b>Step 3:</b>  &nbsp;  Click "Activate only A"  : Since A causes C to fire at time t without B being active at (t-1) &amp; (t-2) , the criteria for weakening is satisfied, and therefore the strength of the <b>t+1</b> and <b>t+2</b> dynamic connection from <b>B</b>  to <b>C</b>  is weakened repeatedly, until it is removed.
+		</div>
+		
+			 <span style='font-size:0.7em;float:right;'><a target="_blank" href='connectome_002.html'><img src='newwindow.png'/></a></span> 
+		   <iframe   src='connectome_002.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=890 ></iframe> 
+			 
+			 </center>
+		 
+		 </div>
+	
+	
+	</p> </dd> 
+	
+	 
+	  </div>
+	  </div>
+	  
+	  
+	  	<div class="row p-5">  
+			 <div class="col-sm">
+				<a href='part4.html'><< Prev: 4.Encoding stimuli</a>
+			 </div>
+			 
+			 <div class="col-sm-2"  > 
+				 <a href='index.html'>Index</a>
+			 </div>  
+			 
+			
+			 <div class="col-sm-5"   >  
+				<a href='part6.html'>>> Next: 6. Designing an Artificial Lifeform</a>
+			 </div>
+	   
+				<br> 
+				<br>
+				<br> 
+				<br>
+	     
+	</div>
+	
+     
+	
+    	 
+	
+</div>
+ 		
+  
+</body>	
+	  
+</html>

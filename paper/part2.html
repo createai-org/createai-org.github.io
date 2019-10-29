@@ -1,0 +1,425 @@
+<html>
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  > 
+	<link rel="stylesheet" href="aibook.css"  > 
+  
+    <script src="jquery-3.3.1.slim.min.js"  ></script>
+    <script src="popper.min.js"  ></script>
+    <script src="bootstrap.min.js"   ></script>
+  
+    <script src="jquery.min.js"></script> 
+    
+   <link href="https://fonts.googleapis.com/css?family=Faustina&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet"/>
+</head>
+<style>
+   
+	
+	body{
+		font-family: 'Nunito Sans', sans-serif;
+		color:#333333; 
+	}
+
+	 
+
+</style>
+
+
+
+ 
+<body style='background-color:white;font-family:Nunito Sans;background-color:#aeaeae;'>
+ 
+<div class="container p-5"> 
+    <div class="row" >  
+	<br>
+	<br>
+	
+	<br> 
+			</div>
+			
+			
+			
+	
+	 <div class="row" >  
+		    
+		<div class="col-sm-5"   >  
+			<a href='part1.html'><< Prev: 1.Approach required for real AI</a>
+		 </div>
+		 
+		 <div class="col-sm-2"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-5"   >  
+			<a href='part3.html'>>> Next: 3. Neural circuits with specific functions</a>
+		 </div>
+	   
+				
+	     
+	</div>
+	
+	   
+	
+	<div class="row p-5"   >  
+		<div class="col-sm-12"  > 
+			<center> 
+			<h1 style='padding:18px;background-color:#eaeaae'>Part 2. The proposed Neuron model</h1>
+			</center>
+			
+							 
+		 <h3  id="section2.1">2.1. &nbsp; &nbsp;Description of the neuron model used  </h3>
+		 <ul type="">
+			 <li>Each neuron N has a threshold  <i>θ<sub>n</sub></i>
+			 </li>
+			 <li> Each neuron N receives input signal of intensity <i>i<sub>n</sub></i>
+			 </li>
+			 <li> When the input signal intensity <i>i<sub>n</sub></i> is greater than or equal to the neuron's threshold <i>θ<sub>n</sub></i> , then the neuron fires with output signal intensity <i>O<sub>n</sub></i>
+
+			 </li>
+		 </ul>
+		 <br>
+		 <h3  id="section2.2">2.2. &nbsp; &nbsp;In this neuron model, there are two types of neurons :   </h3>
+		   
+		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(i) <span style='font-weight:bold;font-style:normal;color:#333333'> Binary neurons </span> , which produce only binary output when activated; <br>
+		<center>  <br> <img src='img/f3.png' style='max-width:550px;' width=80%/>
+		<br>If   <i>i<sub>a</sub></i> ≥ = <i>θ<sub>a</sub></i> , then<mark>  <i>O<sub>a</sub></i>   = 1   </	mark>  ; else  <i>O<sub>a</sub></i>  = 0
+		</center>
+		 
+		 <br> <br>
+		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ii)<span style='font-weight:bold;font-style:normal;color:#333333'>  Non-binary neurons</span> , which produce output signal intensity equal to input   when activated; <br>
+		<center> <br>  <img src='img/f1.png' style='max-width:550px;'  width=80%/>
+		<br>If   <i>i<sub>a</sub></i> ≥ = <i>θ<sub>a</sub></i> , then<mark>  <i>O<sub>a</sub></i>   = <i>i<sub>a</sub></i>  </mark>   ; else  <i>O<sub>a</sub></i>  = 0
+		
+		</center> 
+		
+		 <br> <br> <br>
+		   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Binary neurons are represented as circles while non-binary neurons are represented as squares.<br>
+		 <br>
+		 
+		 <div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+			 <span style='padding:5px;background-color:#ffaaaa;font-size:0.8em;width:100%;text-align:left;'>Interactive examples</span>
+			 <center> 
+			 <br><br><br>
+			  <b> Binary neuron </b>
+		 
+			 <iframe   src='fig000_1a.html' frameBorder="0" style='border:1px solid gray;min-width:800px'  scrolling="no" width=90% height=300 ></iframe> 
+		 
+			 
+			  <br><br><br><b> Non-binary neuron</b>
+	 
+		   <iframe   src='fig000_2a.html' frameBorder="0" style='border:1px solid gray;min-width:800px'  scrolling="no" width=90% height=300 ></iframe> 
+			  
+		 
+		 
+		 </div>
+		 
+		 
+		 
+		 
+		 
+		 <br>
+		 
+		 <hr>
+		  
+		 
+		 
+		 <br>
+		 <h3 id="section2.3">2.3. &nbsp; Connection weights</h3>
+		  <br>
+		  <ul>
+			  <li>Connections may exist between two neurons and the strength of the connection is termed as 'connection weight'
+			  </li>
+		  
+		  
+		    <li> If neuron A has a downstream connection to neuron B , the 'connection weight' from A to B can be represented as <i>w<sub>ab</sub></i>
+			  </li>
+		  
+		  
+		    <li>When the neuron A sends an output signal  <i>O<sub>a</sub></i> to neuron B, the signal is amplified by a factor <i>w<sub>ab</sub></i><br>
+			  </li>
+		  
+		  <li>  When the input signal intensity <i>i<sub>b</sub></i> is greater than or equal to the neuron B's threshold <i>θ<sub>b</sub></i> , then neuron B fires  <br>
+			  </li>
+		  
+		  <li> &nbsp; &nbsp;&nbsp; ie., the input signal to neuron B  is  :  &nbsp; &nbsp;&nbsp;<i>i<sub>b</sub></i> =  <i>O<sub>a</sub></i> *  <i>w<sub>ab</sub></i> <br>
+			  </li>
+		  
+		  </ul>  
+		 <br>
+		 <br><br><br><br> 
+		<center> 
+			
+			<b>Connections in binary neurons :</b> <br>  <br> <img src='img/f4.png' style='max-width:600px;' width=80%/>
+		<br> 
+		Input signal to Neuron B = output signal from A  * ( connection strength from A to B)
+		<br>ie.,   <i>i<sub>b</sub></i>  =  <i>O<sub>a</sub></i>  * <i>w<sub>ab</sub></i> 
+		<br> If  <i>i<sub>b</sub></i>   ≥ <i>θ<sub>b</sub></i> , then <mark> <i>O<sub>b</sub></i>   = 1</mark>    ; else <i>O<sub>b</sub></i>   = 0
+
+
+		</center> 
+		<br><br>
+		<hr style='width:50%;'>
+		<br><br> 
+		<center>  <b>Connections in non-binary neurons :</b> <br> <br>  <img src='img/f2.png' style='max-width:600px;' width=80%/>
+			<br> 
+		Input signal to Neuron B = output signal from A  * ( connection strength from A to B)
+		<br>ie.,   <i>i<sub>b</sub></i>  =  <i>O<sub>a</sub></i>  * <i>w<sub>ab</sub></i> 
+		<br> If  <i>i<sub>b</sub></i>   ≥ <i>θ<sub>b</sub></i> , then <mark> <i>O<sub>b</sub></i>   = <i>i<sub>b</sub></i> </mark> ; else <i>O<sub>b</sub></i>   = 0
+
+		</center> 
+		
+		
+		  <br>
+		  <div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%; '>
+			  <span style='padding:5px;background-color:#ffaaaa;font-size:0.8em;width:100%;text-align:left;'>Interactive example</span>
+		 <center> 
+			 
+		 
+			  <br><br><br><b> Binary neuron with connections</b>
+	  
+			 <iframe   src='fig000_1b.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no"  width=100% height=500   ></iframe> 
+		 
+			 
+		
+		
+		 
+			 <br><br><br><b> Non-binary neuron with connections</b> 
+			
+		   <iframe   src='fig000_2b.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=400 ></iframe> 
+			 
+			 </center>
+		 
+		 </div>
+		 
+		 
+		  
+		 <br>
+		 
+		 <hr>
+		 
+		 
+		 
+		 
+		 
+		 
+		 <br>
+		 <h3  id="section2.4">2.4. &nbsp; Excitatory and Inhibitory connections</h3>
+
+		 <br>
+		 &bull;
+		 &nbsp;&nbsp;The signal from one neuron to another could be either excitatory or inhibitory.
+		 <br>
+		 &bull;
+		&nbsp;&nbsp;An incoming inhibitory signal makes a neuron less likely to fire.
+		<br>
+		 &bull;
+		 &nbsp;&nbsp;Excitatory connections have positive connection weights ,for example : &nbsp;  <i>w<sub>ab</sub></i> = 0.8
+		<br>
+		 &bull;
+		&nbsp;&nbsp;Inhibitory connections have negative connection weights ,for example : &nbsp;<i>w<sub>ab</sub></i> = -1
+		<br><br><br><br> 
+		<center style='font-size:0.9em;'> <b>Inhibitory connections  :</b> <br>  <img src='img/f5.png' width=45%/>
+		<br>
+		Let Neuron B’s firing threshold   <i>θ<sub>b</sub></i>  = 1
+		<br>An excitatory connection <i>w<sub>ab</sub></i> exists from neuron A to neuron B with connection weight 1
+		<br>An inhibitory connection <i>w<sub>cb</sub></i> exists from neuron C to neuron B  with connection weight  -1
+		<br>If neuron A and neuron C fire at the same time , with output intensity 1 each, then :
+		<br>Input to neuron B :  <i>i<sub>b</sub></i> = ( <i>O<sub>a</sub></i> * <i>w<sub>ab</sub></i> )  + (  <i>O<sub>c</sub></i> * <i>w<sub>cb</sub></i>)
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>i<sub>b</sub></i>    = ( 1 * 1 ) + (1 * -1 ) 
+		<br><i>i<sub>b</sub></i>    =  0  
+		<br>(The excitatory signal from A is cancelled out by the inhibitory signal from C)
+		<br>Since <i>i<sub>b</sub></i> < <i>θ<sub>b</sub></i>  , neuron B doesn’t fire.
+		<br><br><br>
+		</center>
+		
+		
+		
+		<div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+			<span style='padding:5px;background-color:#ffaaaa;font-size:0.8em;width:100%;text-align:left;'>Interactive example</span>
+			 
+			<center> 
+			  <br><br><br><b> Inhibitory connections</b> 
+			<iframe   src='fig000_3.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=90% height=910 ></iframe>  
+			 </center>
+		 
+		 </div>
+		
+		 
+		
+		  
+		 <br> 
+		 <hr>  
+		 <br> 
+ 
+<h3  id="section2.5">2.5. &nbsp; Synaptic steps in a Firing sequence</h3>  
+<br> &bull;
+&nbsp;&nbsp;In a neural circuit, all neurons do not fire at the same time. 
+<br>&bull;
+&nbsp;&nbsp;They fire in a sequential order, depending on the way they are connected to each other.
+<br> &bull;
+&nbsp;&nbsp;The upstream neurons fire first, followed by the downstream neurons. 
+<br><br>
+<br> <center style='font-size:0.9em;'> <b>Firing sequence : example 1 </b> <br>  <img src='img/synaptic1.png' width=65%/>
+<br>  
+<span style='text-align:left;'>
+	<i>Sequence of firing</i> : <br>
+	Neuron A fires , then after a few milliseconds B fires , then after a few milliseconds  C fires .
+	<br> The signal from A reaches B in one "synaptic step"
+	<br> The signal from A reaches C in two "synaptic steps"
+	
+</span>
+</center>
+<br>
+<br>
+<br>
+<br><br>
+
+<center style='font-size:0.9em;'> <b>Firing sequence : example 2 :</b> <br>  <img src='img/synaptic2.png' width=65%/>
+<br>
+<span style='text-align:left;'>
+	<i>Sequence of firing</i> : <br>
+	Neuron A fires , then after a few milliseconds B & C fire at same time , then D  fires, then E  fires .
+	<br>So it has taken 'three steps in time'(synaptic timesteps) for the signal from A to reach E 
+	<br>(assuming input  to A,B,C,D,E cross their corresponding thresholds)</br>
+	
+</span>
+ </center>
+  <br>  <br> 
+		<div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%; '>
+			<span style='padding:5px;background-color:#ffaaaa;font-size:0.8em;width:100%;text-align:left;'>Interactive examples</span>
+			<center>  
+				<br> 
+			
+				<br> <b>   Firing sequence : example 1</b>
+			  <br>
+				<iframe   src='fig000_4a.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=620 ></iframe> 
+			 
+				 <br><br><br><b> Firing sequence : example 2</b>
+				  <br>
+				<iframe   src='fig000_4b.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=620 ></iframe> 
+			 
+			 </center> 
+		 
+		 </div>
+ <br> 
+ <hr>  
+ <br> 
+ 
+<h3 id="section2.6">2.6. &nbsp; Temporal connections : Timed delay in neurotransmission</h3>   
+    <br>  
+ <br> &bull;
+&nbsp;&nbsp;In this model, we introduce connections that incorporate a precisely timed delay in neural-signal transmission.
+<br> &bull;&nbsp;&nbsp;A signal through a <b><i>t+1</i></b> connection reaches the target neuron in one synaptic timestep 
+<br> &bull;&nbsp;&nbsp;A signal through a <b><i>t+2</i></b> connection reaches the target neuron in two synaptic timesteps.
+<br> &bull;&nbsp;&nbsp;A connection can have upto <b><i>t+H</i></b> connections, where <b>H</b> is the maximum delay allowed for signal transmission for that neural circuit. 
+<br> <center>
+<span style='font-size:0.9em;'> <b>Timed delay in neurotransmission : example 1 </b> </span> <br>  
+<img src='img/temporal1.png' width=65%/>
+<br> 
+<br> <span style='font-size:0.9em;'> <b>Timed delay in neurotransmission : example 2 </b> </span>
+<br>  <img src='img/temporal2.png' width=65%/>
+<br> 
+<span style='text-align:left;font-size:0.8em;width:50%;'>
+	<i>Sequence of firing</i> : <br>
+	Neuron A fires , then after a few milliseconds B fires , then after a few milliseconds  C  & D fire at same time .
+	<br> Since there is a t+2 connection from A to C, the signal from A reaches C at the sametime the signal from B reaches C 
+	
+</span>
+</center> 
+	<br> 
+ <hr>  
+ <br> 
+ 
+<h3 id="section2.7">2.7. &nbsp;  Firing frame : Representing neuron states over time</h3> 
+<br>
+&bull;
+&nbsp; To help with visualizing the firing states of neurons over time,  we can tabulate the output signals of neurons over time.
+<br> &bull;
+&nbsp; In this table, which we term as "Firing Frame", we have time in Y axis and neuron names in X axis 
+<br>&bull;
+&nbsp;  Each cell represents the output signal intensity of a neuron at specific time
+<br><br><br>
+<center> 
+<span style='font-size:0.9em;'> <b>Firing frame : example 1 :</b> </span> <br>  <img src='img/firingframe1.png' width=70%/>
+<br>
+<span style='text-align:left;font-size:0.85em;width:50%;'> 
+	In this neural circuit composed of binary neurons, (assuming that firing thresholds are met)
+	<br> the sequence of firing is : A fires first, then B & C fire at same time,  then D fires , and then E fires.
+	<br> The output of each of these binary neurons is 1 , which is entered in the cell corresponding to the time the neuron fired.
+	
+</span>
+</center>
+<br><br><br><br><br><br>
+
+<center style='font-size:0.9em;'> <b>Firing frame : example 2 :</b> <br>  <img src='img/firingframe2.png' width=60%/>
+<br>
+<span style='text-align:left;'> 
+	In this neural circuit, note that the connection from A to C is a t+2 connection,
+	<br> so it takes two synaptic steps for the signal from A to reach C ,upon which C fires. 
+	
+</span>
+</center>
+
+ <br>  <br> 
+		<div style='padding:5px;background-color:#ffaaaa;font-size:1 em;width:100%; '>
+			<span style='padding:5px;background-color:#ffaaaa;font-size:0.8em;width:100%;text-align:left;'>Interactive examples</span>
+			<center>  
+				<br> 
+			
+				<br><br><br><b>  Temporal connections with Firing Frame: example 1</b>
+			  <br>
+				<iframe   src='fig000_5a.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=850 ></iframe> 
+			 
+				 <br><br><br><b> Temporal connections with Firing Frame: example 2</b>
+				  <br>
+				<iframe   src='fig000_5b.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=890 ></iframe> 
+			 
+			 </center> 
+		 
+		 </div>
+		 
+		 
+		 
+	  </div>
+	  </div>
+	  
+	  
+	  	<div class="row p-5">  
+			 <div class="col-sm">
+				<a href='part1.html'><< Prev: 1.Approach required for real AI</a>
+			 </div>
+			 
+			 <div class="col-sm-2"  > 
+				 <a href='index.html'>Index</a>
+			 </div>  
+			 
+			
+			 <div class="col-sm-5"   >  
+				<a href='part3.html'>>> Next: 3. Neural circuits with specific functions</a>
+			 </div>
+	   
+				<br> 
+				<br>
+				<br> 
+				<br>
+	     
+	</div>
+	
+     
+	
+    	 
+	
+</div>
+ 		
+  
+</body>	
+	  
+</html>

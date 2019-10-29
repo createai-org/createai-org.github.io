@@ -1,0 +1,596 @@
+<html>
+
+
+
+
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  >
+ 
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+  
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"  ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"  ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"   ></script>
+ 
+    <script src='cytoscape.min.js'></script>
+    <script src="popper.js"></script>
+    <script src="cytoscape-popper.js"></script>
+    <script src="tippy.js"></script>
+    <script src="apexcharts.js"></script>
+    <script src="jquery.min.js"></script>
+     <script src="learningBrain.v2.js"></script> 
+    <link rel="stylesheet" href="tippy.css" />
+    
+    
+</head>
+<style>
+    #cy { 
+        position: absolute; 
+    }
+    
+    /* makes sticky faster; disable if you want animated tippies */
+		.tippy-popper {
+			transition: none !important;
+		}
+	
+</style>
+
+
+
+
+
+<script language="javascript">
+
+
+ 
+
+  
+
+/////////////////////////////////////////////////////////////////////////////////
+var makeTippy = function(node, text,placement, preferredClass){
+	return tippy( node.popperRef(), {
+		content: function(){
+			var div = document.createElement('div');
+			div.innerHTML = text; 
+			if (preferredClass != undefined){
+				div.classList.add(preferredClass);
+			}
+			return div;
+		},
+		trigger: 'click',
+		arrow: true,
+		placement: placement,
+		hideOnClick: false,
+		multiple: true,
+		sticky: false
+	} );
+};
+////////////////////////////////////////////////////////////////////////////////////
+
+function destroyTippys(){
+	$('.tippy-popper').remove();  
+}
+
+
+function drawGraphCustom2( brainObject, cytoscapeObject){
+	
+	var neurons = [];
+	var edges = [];
+	
+	for(var n=0;n<brainObject.neurons.length;n++){
+			 
+			 neurons.push({	name:brainObject.neurons[n].name,
+							threshold: brainObject.neurons[n].threshold,
+							isBinary:brainObject.neurons[n].isBinaryOutput,
+							alwaysOn:brainObject.neurons[n].alwaysOn
+							});
+	}			
+	
+	for (var hh=1;hh<brainObject.connectionMatrix.length;hh++){ 
+		for(var n=0;n<brainObject.neurons.length;n++){ 
+			for(var n2=0;n2<brainObject.neurons.length;n2++){  
+				if (brainObject.connectionMatrix[hh][n][n2] != 0){
+					edges.push({source: brainObject.neurons[n].name,target: brainObject.neurons[n2].name,connectionWeight:brainObject.connectionMatrix[hh][n][n2],timestep:hh});
+				} 
+			}
+		}
+		
+	}
+		 
+	//draw neurons
+	
+	
+	
+	//draw invisible neurons  to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true || brainObject.neurons[i].hideNeuron  == true){ 
+			 var thisnode = cytoscapeObject.add({
+				data: { id: neurons[i]["name"]+"_ENV" }
+				}
+			);
+			thisnode.style({"visibility":'hidden', 'border-color':'black','border-width':0}); 
+			 
+		} 
+	}
+
+	for (var i = 0; i < neurons.length; i++) {
+		var thisnode = cytoscapeObject.add({
+			data: { id: neurons[i]["name"] }
+			}
+		);
+		thisnode.style({"label":neurons[i]["name"]}); 
+	} 
+	
+	
+	
+	//add tooltips for each neuron
+	for (var i = 0; i < neurons.length; i++) {
+		var tooltip =  'threshold θ ='+brainObject.neurons[i].threshold ;
+		if( brainObject.neurons[i].isBinaryOutput  == true){ 
+			tooltip = tooltip +"<br> max.output=1";
+		}else{
+			cytoscapeObject.getElementById(neurons[i]["name"]).style("shape","square");
+			
+		}
+//		 makeTippy(cytoscapeObject.getElementById(neurons[i]["name"]),tooltip ).show();
+	} 
+
+
+
+	
+
+
+
+	for (var i = 0; i < edges.length; i++) {
+		var thisedge  = cytoscapeObject.add({
+			data: { id: edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"], source : edges[i]["source"], target  : edges[i]["target"] ,connectionWeight : edges[i]["connectionWeight"], timestep : edges[i]["timestep"] }
+			}
+		);
+		/*thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+						"source-label": " t+"+edges[i]["timestep"]+" ", "label": 'w = '+edges[i]["connectionWeight"],
+						'font-size':12,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9});
+		*/				
+			thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+						  "label": 'w = '+edges[i]["connectionWeight"],
+						'font-size':12,'font-style':'normal' });
+	
+		//makeTippy(cytoscapeObject.getElementById(edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"]), "epoch  sending "  , 'bottom').show();
+		
+	} 
+	//cytoscapeObject.nodes().style({'text-valign': 'center','background-color':'#ccc', 'border-color':'black', 'border-width':1 });
+	cytoscapeObject.nodes().style({'text-valign': 'center','text-halign':'right','background-color':'#ccc', 'border-color':'black', 'border-width':1 });
+	// cytoscapeObject.nodes().style({'width':'0.7em','height':'0.7em' });
+	cytoscapeObject.edges().style({'line-color':'#333', 
+						'border-color':'black', 'border-width':2 ,
+					'curve-style': 'bezier',
+					'width': 1,  
+					'target-arrow-shape': 'triangle', 
+					 'target-arrow-color': '#333',   
+					'arrow-scale':1.5});
+	 
+	cytoscapeObject.edges('[connectionWeight < 0]').style({'line-color': 'red', 'target-arrow-shape': 'triangle-cross', 'line-style':'dotted','target-arrow-color': 'red' });
+	
+	
+	//draw invisible  edges from invisible neurons to sensory neurons, to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true){ 
+			  
+			var thisedge  = cytoscapeObject.add({
+								data: { id: neurons[i]["name"]+"_ENVINPUT", 
+										source : neurons[i]["name"]+"_ENV", 
+										target  : neurons[i]["name"]  
+										 }
+								}
+							);
+			thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+							"source-label": "", "label": '','line-color':'blue',
+							'font-size':8,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9,
+							'line-color':'blue', 
+							'border-color':'black', 'border-width':2 ,
+							'curve-style': 'bezier',
+							'width': 1,  'line-style':'dashed',
+							'target-arrow-shape': 'vee', 
+							 'target-arrow-color': 'blue',   
+							'arrow-scale':1.5
+							});
+		} 
+	}
+	
+	
+	
+	//mark Z as always on
+	//makeTippy(cytoscapeObject.getElementById("Z"), "always On" ).show();
+	 
+
+	cytoscapeObject.layout({
+		name: 'breadthfirst'
+	}).run();  
+}
+
+
+
+
+
+var epochCount = 0;
+var circuit;
+var brain1;
+var datastream_to_use;		
+var cy;
+var chartobj;
+var idleInterval = null;
+var idleTime = 0;
+
+
+
+function get_scalar_encoder_brain(){
+	var brainx = new Brain({stepsAhead:3,drawFiringFrame:false}); 
+	 
+    rangeBuckets = 3;
+	var scalarNeurons = get_scalar_circuit_neurons("1_",rangeBuckets,255);
+	for(var r=0;r<scalarNeurons.length;r++){
+		brainx.add_neuron(scalarNeurons[r]);
+	}
+	var scalarNeurons = get_scalar_circuit_neurons("2_",rangeBuckets,255);
+	for(var r=0;r<scalarNeurons.length;r++){
+		brainx.add_neuron(scalarNeurons[r]);
+	}
+	var scalarNeurons = get_scalar_circuit_neurons("3_",rangeBuckets,255);
+	for(var r=0;r<scalarNeurons.length;r++){
+		brainx.add_neuron(scalarNeurons[r]);
+	}
+	
+	var scalarNeurons = get_scalar_circuit_neurons("4_",rangeBuckets,255);
+	for(var r=0;r<scalarNeurons.length;r++){
+		brainx.add_neuron(scalarNeurons[r]);
+	}
+	var scalarNeurons = get_scalar_circuit_neurons("5_",rangeBuckets,255);
+	for(var r=0;r<scalarNeurons.length;r++){
+		brainx.add_neuron(scalarNeurons[r]);
+	}
+	
+	brainx.init_connections()
+	
+	var scalarConnections = get_scalar_circuit_connections("1_",rangeBuckets,255);
+	for(var r=0;r<scalarConnections.length;r++){
+		brainx.create_connection(scalarConnections[r]);
+	} 
+	
+	var scalarConnections = get_scalar_circuit_connections("2_",rangeBuckets,255);
+	for(var r=0;r<scalarConnections.length;r++){
+		brainx.create_connection(scalarConnections[r]);
+	} 
+	var scalarConnections = get_scalar_circuit_connections("3_",rangeBuckets,255);
+	for(var r=0;r<scalarConnections.length;r++){
+		brainx.create_connection(scalarConnections[r]);
+	} 
+	var scalarConnections = get_scalar_circuit_connections("4_",rangeBuckets,255);
+	for(var r=0;r<scalarConnections.length;r++){
+		brainx.create_connection(scalarConnections[r]);
+	} 
+	var scalarConnections = get_scalar_circuit_connections("5_",rangeBuckets,255);
+	for(var r=0;r<scalarConnections.length;r++){
+		brainx.create_connection(scalarConnections[r]);
+	} 
+	
+	brainx.create_connection({ fromNeuronName :"1_A1", toNeuronName :"2_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"2_A1", toNeuronName :"3_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"3_A1", toNeuronName :"4_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"4_A1", toNeuronName :"5_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	 
+	
+	brainx.create_connection({ fromNeuronName :"2_A1", toNeuronName :"1_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"3_A1", toNeuronName :"2_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"4_A1", toNeuronName :"3_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	brainx.create_connection({ fromNeuronName :"5_A1", toNeuronName :"4_B1", synapticStepNumber:1, connectionWeight:-0.2});
+	 
+	
+	
+	var datastream_to_use  = [];
+	  
+	return { brain:brainx, datastream_to_use :datastream_to_use} ;
+	  
+	   
+}
+
+var rangeBuckets;
+var canvasElem,canvasContext; 
+var grayScaleValueNow ;
+var firstValueNow ;
+var secondValueNow ;
+var thirdValueNow ;
+var fourthValueNow ;
+var fifthValueNow ;
+var grd; 
+var startedSending = false;
+$(window).on('load', function() {
+	
+		
+	$( "#myCanvas" ).mouseover(function(e) {
+		 $('#myCanvas').css('cursor','pointer'); 
+		 if (startedSending == false){
+			 send_inputs();
+			startedSending = true;
+		 }
+	});
+	
+	$( "#myCanvas" ).mousemove(function(e) { 
+		   var relX = e.pageX; 
+		   var relY = e.pageY ;
+			
+			if (relX<100){return;}
+	    
+			canvasContext.fillStyle = grd;
+			canvasContext.fillRect(100, 0, 1270, 100); 
+			
+	
+			var data1 = canvasContext.getImageData(relX, relY, 1, 1).data; 
+			firstValueNow = parseInt((data1[0] + data1[1]+ data1[2])/3); 
+			
+			  data2 = canvasContext.getImageData(relX+20, relY, 1, 1).data; 
+			secondValueNow = parseInt((data2[0] + data2[1]+ data2[2])/3); 
+			
+			  data3 = canvasContext.getImageData(relX+40, relY, 1, 1).data; 
+			thirdValueNow = parseInt((data3[0] + data3[1]+ data3[2])/3); 
+			
+			
+			  data4 = canvasContext.getImageData(relX+60, relY, 1, 1).data; 
+			fourthValueNow = parseInt((data4[0] + data4[1]+ data4[2])/3); 
+			
+			
+			  data5 = canvasContext.getImageData(relX+80, relY, 1, 1).data; 
+			fifthValueNow = parseInt((data5[0] + data5[1]+ data5[2])/3); 
+			
+			
+			
+			canvasContext.strokeRect(relX , relY, 20, 20); 
+			canvasContext.strokeRect(relX+20 , relY, 20, 20); 
+			canvasContext.strokeRect(relX+40 , relY , 20, 20); 
+			canvasContext.strokeRect(relX+60, relY , 20, 20); 
+			canvasContext.strokeRect(relX+80 , relY , 20, 20); 
+			
+			
+			var rgb1 = [ data1[0], data1[1], data1[2] ]; 
+			canvasContext.fillStyle = "rgb("+data1[0]+","+data1[1]+","+data1[2]+")"; 
+			canvasContext.fillRect(3, 3, 20, 20); 
+			canvasContext.strokeStyle = "#000000";
+			canvasContext.strokeRect(3, 3, 20, 20); 
+			
+			
+			var rgb2 = [ data2[0], data2[1], data2[2] ]; 
+			canvasContext.fillStyle = "rgb("+data2[0]+","+data2[1]+","+data2[2]+")"; 
+			canvasContext.fillRect(23, 3, 20, 20); 
+			canvasContext.strokeStyle = "#000000";
+			canvasContext.strokeRect(23, 3, 20, 20); 
+			
+			var rgb3 = [ data3[0], data3[1], data3[2] ]; 
+			canvasContext.fillStyle = "rgb("+data3[0]+","+data3[1]+","+data3[2]+")"; 
+			canvasContext.fillRect(43, 3, 20, 20); 
+			canvasContext.strokeStyle = "#000000";
+			canvasContext.strokeRect(43, 3, 20, 20); 
+			
+			var rgb4 = [ data4[0], data4[1], data4[2] ]; 
+			canvasContext.fillStyle = "rgb("+data4[0]+","+data4[1]+","+data4[2]+")"; 
+			canvasContext.fillRect(63, 3, 20, 20); 
+			canvasContext.strokeStyle = "#000000";
+			canvasContext.strokeRect(63, 3, 20, 20); 
+			
+			var rgb5 = [ data5[0], data5[1], data5[2] ]; 
+			canvasContext.fillStyle = "rgb("+data5[0]+","+data5[1]+","+data5[2]+")"; 
+			canvasContext.fillRect(83, 3, 20, 20); 
+			canvasContext.strokeStyle = "#000000";
+			canvasContext.strokeRect(83, 3, 20, 20); 
+			
+			
+			
+	 
+	});
+
+
+	$( "#myCanvas" ).mouseleave(function() {
+		 $('#myCanvas').css('cursor','auto');
+		 //canvasContext.fillStyle = "rgb(0,0,0,1)"; 
+		 //canvasContext.fillRect(0, 0, 50, 50);
+	});
+
+	
+	canvasElem = document.getElementById("myCanvas");
+	canvasContext = canvasElem.getContext("2d"); 
+
+	grd = canvasContext.createLinearGradient(100, 0, 470, 0);
+	grd.addColorStop(0, "black");
+	grd.addColorStop(0.2, "black");
+	grd.addColorStop(0.8, "white");
+	grd.addColorStop(1, "white");
+
+	canvasContext.fillStyle = grd;
+	canvasContext.fillRect(100, 0, 1270, 100); 
+      
+      
+      
+      // Fill with gradient 
+  
+	 
+ 
+	
+	
+	 
+	var chartoptions = getChartOptions();
+	chartobj = new ApexCharts(
+	  document.querySelector("#chart"),
+	  chartoptions
+	); 
+	chartobj.render();  
+    cy = cytoscape({ userZoomingEnabled:false	, container: document.getElementById('cy')});  
+	
+	circuit = get_scalar_encoder_brain();
+	brain1 = circuit.brain;
+	datastream_to_use = circuit.datastream_to_use; 
+	
+	
+	
+	drawGraphCustom2(brain1, cy);     
+	
+	cy.layout({
+		name: 'breadthfirst'
+	}).run();  
+	
+	//var A1_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["A1"]; }); 
+	 
+	
+	
+	 
+	
+	for(i=1;i<=5;i++){
+	 var pre = i; 
+	  cy.$('#'+pre+'_A1_ENV').position({	  x: -150 +  (i-1)*300 + 220  - 130,y:10	});
+	  cy.$('#'+pre+'_A1').position({	  x: -150 +  (i-1)*300 + 220  - 130,y:150	});
+	  cy.$('#'+pre+'_B1').position({	  x: -150 +  (i-1)*300 + 220  - 130,y:210	}); 
+	  
+	  cy.$('#'+pre+'_C1').position({	  x: -150 +  (i-1)*300 + 20  - 130,y:310	}); 
+	  cy.$('#'+pre+'_C2').position({	  x: -150 +  (i-1)*300 + 120  - 130,y:310	}); 
+	  cy.$('#'+pre+'_C3').position({	  x: -150 +  (i-1)*300 + 220  - 130,y:310	}); 
+	  cy.$('#'+pre+'_C4').position({	  x: -150 +  (i-1)*300 + 320  - 130,y:310	}); 
+	  cy.$('#'+pre+'_C5').position({	  x: -150 +  (i-1)*300 + 420  - 130,y:310	}); 
+	  
+	  cy.$('#'+pre+'_D1').position({	  x: -150 +  (i-1)*300 + 20  - 130, y:410	}); 
+	  cy.$('#'+pre+'_D2').position({	  x: -150 +  (i-1)*300 + 120  - 130,y:410	}); 
+	  cy.$('#'+pre+'_D3').position({	  x: -150 +  (i-1)*300 + 220  - 130,y:410	}); 
+	  cy.$('#'+pre+'_D4').position({	  x: -150 +  (i-1)*300 + 320  - 130,y:410	}); 
+	  cy.$('#'+pre+'_D5').position({	  x: -150 +  (i-1)*300 + 420  - 130,y:410	}); 
+	  
+	  cy.$('#'+pre+'_E').position({	  x: -150 +  (i-1)*300 + 90  - 130,y:610	});
+	  cy.$('#'+pre+'_F').position({	  x: -150 +  (i-1)*300 + 290  - 160,y:610	});
+	  cy.$('#'+pre+'_Z').position({	  x: -150 +  (i-1)*300 + 290  - 160,y:690	});
+	}    
+ 
+   // send_inputs();
+});
+
+function send_inputs(){ 
+	 
+	epochCount=0;
+	brain1.clear_inputs(); 
+	var tippyPlacement = 'top';  
+	 clearInterval(idleInterval);
+	idleInterval = setInterval(function(){ 
+			send_info_to_brain(  brain1, cy, chartobj,tippyPlacement); 
+	},550); 
+	
+}
+
+
+function send_info_to_brain( brainObject, cytoscapeObject, chartObject, tippyPlacement){ 
+	
+	
+	$("#inputstream").html(""); 
+	destroyTippys(); 
+	
+	$('#epochinfo').html("Current epoch  : "+ epochCount +" <br>  " ); 
+	
+	vv = epochCount;
+	brainObject.clear_inputs();
+	
+	
+	 
+	neuronName = '1_A1';	 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(firstValueNow);  
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ firstValueNow , "left").show(); 
+	
+	neuronName = '2_A1';	 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(secondValueNow);  
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ secondValueNow , "left").show(); 
+	
+	neuronName = '3_A1';	 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(thirdValueNow);  
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ thirdValueNow , "left").show(); 
+	
+	neuronName = '4_A1';	 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(thirdValueNow);  
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ fourthValueNow , "left").show(); 
+	
+	neuronName = '5_A1';	 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(thirdValueNow);  
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ fifthValueNow , "left").show(); 
+	
+	//then move to next epoch  
+	 
+	
+	 
+	
+	///
+	
+	
+	brainObject.next_epoch();
+	
+	////
+	
+	 
+	
+	drawFiringFrame(brainObject,chartObject, cytoscapeObject);
+	
+	for (var nn=0;nn<brainObject.neurons.length;nn++){
+		if(brainObject.neuronNameOfIndex[nn].includes("A") &&  brainObject.firingFrame[0][nn] > 0 ){
+			//console.log(brainObject.neuronNameOfIndex[nn]+" firing");
+			padstr="";
+			if(brainObject.firingFrame[0][nn].toFixed(0)<100){ padstr+= "&nbsp;";} 
+			$("#inputstream").append("<span style='background-color:rgb("+brainObject.firingFrame[0][nn].toFixed(0)+","+brainObject.firingFrame[0][nn].toFixed(0)+","+brainObject.firingFrame[0][nn].toFixed(0)+")'>&nbsp;&nbsp;&nbsp;<b>"+ brainObject.neuronNameOfIndex[nn]+"</b> : "+ padstr + brainObject.firingFrame[0][nn].toFixed(0)+"</span>" );
+		}
+	} 
+	$("#inputstream").append("<br>");
+	for (var nn=0;nn<brainObject.neurons.length;nn++){
+		if(brainObject.neuronNameOfIndex[nn].includes("B") &&  brainObject.firingFrame[0][nn] > 0 ){
+			padstr="";
+			if(brainObject.firingFrame[0][nn].toFixed(0)<100){ padstr+= "&nbsp;";} 
+			//console.log(brainObject.neuronNameOfIndex[nn]+" firing");
+			$("#inputstream").append("<span style='background-color:rgb("+brainObject.firingFrame[0][nn].toFixed(0)+","+brainObject.firingFrame[0][nn].toFixed(0)+","+brainObject.firingFrame[0][nn].toFixed(0)+")'>&nbsp;&nbsp;&nbsp;<b>"+ brainObject.neuronNameOfIndex[nn]+"</b> : "+ padstr + brainObject.firingFrame[0][nn].toFixed(0)+"</span>" );
+		}
+	}
+	console.log("___");
+	 	
+	epochCount +=1;
+    
+}
+
+
+
+</script>
+ 
+	
+<body style='background-color:white;font-family:Nunito Sans;background-color:lightyellow;'>
+   <div class="row"  style="top:0px;height:600px;">
+		
+	  <div class="col-sm"  id="cy" style='top:0;height:600px;margin-left:0;margin-top:0;background-color:transparent;'> </div>  
+	  
+	  <div class="col-sm-2" id='canvases'  >
+		  <canvas id="myCanvas" width="750px" height="70px" style="position:absolute;border-bottom:0px solid #000000;border-right:1px solid #000000;background-color:transparent;">
+		  </canvas> 
+		</div>	 
+			
+
+	</div> 
+	<span style='font-size:0.8em;'>(Mouse over the grayscale gradient to start sending inputs)		 </span>
+	 <div  id='inputstream' style='font-size:0.8em;text-align:left;font-family:"Courier New"'>
+	  
+	 </div>  
+	 
+	<div class="row" > 
+     
+	 <div class="col-sm-6" id="chart" style='display:none;min-height:400px;background-color:transparent;'> </div>
+	
+ 
+	 </div> 
+ 	
+  
+  
+</body>	
+	  
+</html>

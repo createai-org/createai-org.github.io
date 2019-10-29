@@ -1,0 +1,382 @@
+<html>
+
+
+
+
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  >
+ 
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+  
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"  ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"  ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"   ></script>
+ 
+    <script src='cytoscape.min.js'></script>
+    <script src="popper.js"></script>
+    <script src="cytoscape-popper.js"></script>
+    <script src="tippy.js"></script>
+    <script src="apexcharts.js"></script>
+    <script src="jquery.min.js"></script>
+     <script src="learningBrain.v1.js"></script> 
+    <link rel="stylesheet" href="tippy.css" />
+    
+    
+</head>
+<style>
+    #cy { 
+        position: absolute; 
+    }
+    
+    /* makes sticky faster; disable if you want animated tippies */
+		.tippy-popper {
+			transition: none !important;
+		}
+	
+</style>
+
+
+
+
+
+<script language="javascript">
+
+
+ 
+
+  
+
+/////////////////////////////////////////////////////////////////////////////////
+var makeTippy = function(node, text,placement, preferredClass){
+	return tippy( node.popperRef(), {
+		content: function(){
+			var div = document.createElement('div');
+			div.innerHTML = text; 
+			if (preferredClass != undefined){
+				div.classList.add(preferredClass);
+			}
+			return div;
+		},
+		trigger: 'click',
+		arrow: true,
+		placement: placement,
+		hideOnClick: false,
+		multiple: true,
+		sticky: false
+	} );
+};
+////////////////////////////////////////////////////////////////////////////////////
+
+function destroyTippys(){
+	$('.tippy-popper').remove();  
+}
+
+ 
+
+
+
+var epochCount = 0;
+var circuit;
+var brain1;
+var datastream_to_use;		
+var cy;
+var chartobj;
+var idleInterval = null;
+var idleTime = 0;
+
+
+
+
+
+
+function get_connectome_brain(){
+	var brainx = new Brain({stepsAhead:3}); 
+	brainx.pathways.push({from:"B",to: "C"});
+	
+	//Inverse Neuron
+	var A = new Neuron({name:  "A",threshold:1,	isBinaryOutput :true,isSensoryNeuron:true}); 
+	
+	var B  = new Neuron({name: "B",threshold:1, isBinaryOutput :true,isSensoryNeuron:true });  
+	 
+    var C = new Neuron({name:  "C",threshold:1,	isBinaryOutput :true,isSensoryNeuron:false }); 
+	
+	brainx.add_neuron( A );
+	
+	brainx.add_neuron( B ) 
+	
+	brainx.add_neuron( C  );  
+	 
+	 
+	brainx.init_connections()
+	brainx.create_connection({ fromNeuronName :"A", toNeuronName :"C", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	 
+	
+	 
+	
+	var datastream_to_use  = [
+ 
+		];   
+	  
+	return { brain:brainx, datastream_to_use :datastream_to_use} ;
+}
+
+$(window).on('load', function() {
+	
+	var chartoptions = getChartOptions();
+	chartobj = new ApexCharts(
+	  document.querySelector("#chart"),
+	  chartoptions
+	); 
+	chartobj.render();  
+    cy = cytoscape({ userZoomingEnabled:false, container: document.getElementById('cy')});  
+	
+	circuit = get_connectome_brain();
+	brain1 = circuit.brain;
+	datastream_to_use = circuit.datastream_to_use; 
+	
+	
+	
+	drawGraphCustom(brain1, cy);     
+	
+	cy.layout({
+		name: 'preset'
+	}).run();  
+	
+	var A_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["A"]; }); 
+	var B_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["B"]; });
+	//var C_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["C"]; });
+	var mapvalues = [];
+	for(i=0;i<A_values.length;i++){
+		mapvalues.push(" { A:"+A_values[i]+" , B:"+B_values[i] +"} ")
+	}
+ 
+	
+	$('#inputstream').html( "");
+	/*<br> <b>Intensity estimation circuit :   </b><br>  &bull; &nbsp; &nbsp;"+
+	" A has a t+1 excitation connection to C "+ 
+	 " <br>  &bull; &nbsp; &nbsp; When A fires at time (t), C fires at (t+1)  "  +
+	 " <br>  &bull; &nbsp; &nbsp; B is given a stimuls to fire at same time as A  "  +
+	 
+	 " <br>  &bull; &nbsp; &nbsp; So since B fires one timestep before C often, a (t+1) connection is created from B to C  "  +
+	 " <br>  &bull; &nbsp; &nbsp;Input datastream to A  =  <br>[  "+mapvalues.join("  ,<br>  ") +"  ] <br>"  );
+	 //" <br>  &bull; &nbsp; &nbsp;Input datastream   = <br> [  "+A_values.join("  ,  ") +"  ] <br>"  );
+ 
+	 */
+	  
+   // send_inputs();
+   placeNodes(cy);
+   
+});
+
+function placeNodes(cytoscapeObject){
+	cy.layout({
+		name: 'grid'
+	}).run();  
+	cytoscapeObject.$('#A').position({	  x: 300 ,y:150	}); 
+	cytoscapeObject.$('#B').position({	  x: 400 ,y:150	}); 
+	cytoscapeObject.$('#C').position({	  x: 350 ,y:350	}); 
+	cytoscapeObject.$('#A_ENV').position({	  x: 200 ,y:90	}); 
+	cytoscapeObject.$('#B_ENV').position({	  x: 480 ,y:90	}); 
+}
+
+function activateBothAandB(){
+	datastream_to_use  = [
+			  
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		   {"A" : 1, "B" : 1}, 
+		    {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0}, 
+			   {"A" : 0, "B" : 0},  
+		];   
+	  
+	send_inputs();
+}
+
+function activateOnlyA(){
+	datastream_to_use = 	[ 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+			{"A" : 1, "B" : 0}, 
+		   ];
+	send_inputs();
+}
+
+function activateOnlyB(){
+	datastream_to_use = 	[ 
+			{"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1},  
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1},  
+		   {"A" : 0, "B" : 1},  
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1}, 
+		   {"A" : 0, "B" : 1},  
+		   ];
+	send_inputs();
+}
+
+
+function send_inputs(){ 
+	 
+	epochCount=0;
+	brain1.clear_inputs();
+	//$('#sendbutton').attr("disabled", true);
+	var tippyPlacement = 'top';  
+	 clearInterval(idleInterval);
+	idleInterval = setInterval(function(){ 
+			send_info_to_brain(datastream_to_use, brain1, cy, chartobj,tippyPlacement); 
+	},900); 
+	
+}
+
+
+function send_info_to_brain(input_datastream, brainObject, cytoscapeObject, chartObject, tippyPlacement){ 
+	
+	
+	if (epochCount >= input_datastream.length){
+		$('#epochinfo').html ( "Current epoch  : "+ epochCount +" <br>  " + "End  of inputs");
+		//$('#sendbutton').attr("disabled", false); 
+		return;
+	}else{
+		destroyTippys();
+	}
+	
+	$('#epochinfo').html("Current epoch  : "+ epochCount +" <br>  " );
+	//for (var vv = 0;vv<input_datastream.length;vv++){ 
+	
+	vv = epochCount;
+	brainObject.clear_inputs();
+	
+	if (epochCount >=0){
+		brainObject.create_dynamic_connections_from_firingFrame();
+		//brainObject.create_dynamic_connection({ fromNeuronName :"B", toNeuronName :"C", synapticStepNumber:1, connectionWeight:1.0}); 
+		drawGraphCustom(brainObject, cytoscapeObject);  
+		placeNodes(cytoscapeObject);
+	}
+	
+	//send sensory values from datastream to brain
+	for(var neuronName in input_datastream[vv]) {
+		brainObject.sensoryValuesDict[ neuronName ] = parseFloat(input_datastream[vv][neuronName]);
+		
+		
+		$('#epochinfo').html ( $('#epochinfo').html() + "<br>Sending input signal to neuron "+neuronName+" with intensity  <i>i<sub>a</sub></i>= "+ parseFloat(input_datastream[vv][neuronName]));
+		makeTippy(cytoscapeObject.getElementById(neuronName+'_ENV'),  "  sending  "+ input_datastream[vv][neuronName]  , "left").show();
+	}
+	
+	//then move to next epoch  
+	var tippyStr = " input <i>i<sub>a</sub></i>= "+ input_datastream[vv][neuronName]  +"<br> threshold <i>θ<sub>a</sub></i>=   "+brainObject.get_neuron_by_name(neuronName).threshold;
+	var outputval;
+	if (input_datastream[vv][neuronName]  >= brainObject.get_neuron_by_name(neuronName).threshold ){
+		
+		  outputval = input_datastream[vv][neuronName];
+		if (brainObject.get_neuron_by_name(neuronName).isBinaryOutput == true){
+			outputval = 1; 
+		} 
+		tippyStr +="<br><br>input >= threshold <br> neuron FIRES with output  <i>O<sub>a</sub></i>  =  "+outputval; 
+		
+	}else{
+		tippyStr +="<br>input < threshold, neuron DOESN'T FIRE"; 
+		outputval = 0;
+	}
+	
+	tippyPlacement="bottom";
+	//makeTippy(cytoscapeObject.getElementById(neuronName), tippyStr , tippyPlacement).show();
+	
+	
+	
+	
+	
+	
+	
+	///
+	
+	
+	brainObject.next_epoch();
+	
+	////
+	/*
+	var connweight = brain1.connectionMatrix [1] [0][1] ;
+	var tippyStr = "connweight  <i>w<sub>ab</sub></i> =  "+connweight+"<br> input <i>i<sub>b</sub></i>= <i>O<sub>a</sub></i> * <i>w<sub>ab</sub></i> <br> =  "+brainObject.firingFrame[1][0] +" * "+connweight  +" <br> threshold <i>θ<sub>b</sub></i>=   "+brainObject.get_neuron_by_name("B").threshold;
+	//console.log(brainObject.firingFrame[0]);
+	var thisinputval = brainObject.firingFrame[1][0] * connweight;
+	if (thisinputval  >= brainObject.get_neuron_by_name("B").threshold ){
+		
+		
+		if (brainObject.get_neuron_by_name("B").isBinaryOutput == true){
+			outputval = 1; 
+		} else{
+			outputval = thisinputval;
+		}
+		tippyStr +="<br><br>input >= threshold <br> neuron FIRES with output  <i>O<sub>b</sub></i>  =  "+outputval; 
+		
+	}else{
+		tippyStr +="<br>input < threshold, neuron DOESN'T FIRE"; 
+		outputval = 0;
+	}
+	
+	tippyPlacement="right";
+	//makeTippy(cytoscapeObject.getElementById("B"), tippyStr , tippyPlacement).show();
+	*/
+	drawFiringFrame(brainObject,chartObject, cytoscapeObject);
+		
+	epochCount +=1;
+    
+}
+
+
+
+</script>
+ 
+	
+<body style='background-color:white;font-family:Nunito Sans;background-color:lightyellow;'>
+ 
+	<div class="row"  style="top:0px;height:450px;">
+	  <div class="col-sm"  id="cy" style='top:0;height:450px;margin-left:0;margin-top:0;background-color:transparent;'> </div>  
+	</div> 
+		<div class="col-sm-7" > <button id='sendbutton' onclick='javascript:activateBothAandB();'> Activate both A and B <span style='font-size:0.6em'> simultaneously</span></button>  </div> 
+		<div class="col-sm-3" > <button id='sendbutton' onclick='javascript:activateOnlyB();'> Activate only B</button> </div> 
+		<div class="col-sm-3" > <button id='sendbutton' onclick='javascript:activateOnlyA();'> Activate only A</button>  </div> 
+	<div class="row" >
+	 
+    
+	 <div class="col-sm-6" id="chart" style='min-height:400px;background-color:transparent;'> </div>
+	 <div class="col-sm-6" id='inputstream' style='font-size:0.8em;text-align:left;'></div> 
+	 </div>
+	 
+	 
+ 		
+  
+</body>	
+	  
+</html>

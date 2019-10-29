@@ -1,0 +1,862 @@
+<html>
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  > 
+	<link rel="stylesheet" href="aibook.css"  >  
+	<link rel="stylesheet" href="jquery.fancybox.min.css" />
+
+
+
+  
+    <script src="jquery-3.3.1.slim.min.js"  ></script>
+    <script src="popper.min.js"  ></script>
+    <script src="bootstrap.min.js"   ></script>
+  
+    <script src="jquery.min.js"></script>  
+    <script src="jquery.fancybox.min.js"></script>
+
+
+    
+   <link href="https://fonts.googleapis.com/css?family=Faustina&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet"/>
+</head>
+<style>
+    
+	
+	body{
+		font-family: 'Nunito Sans', sans-serif;
+		color:#333333; 
+	}
+ 
+	.neurontext{
+		font-family:"Courier New",Courier,monospace;
+		font-weight:bold;
+	}
+	h4{
+		margin-bottom:23px;
+		margin-top:59px;
+	}
+ 
+ 
+ 
+	/* mouse over link */
+	img:hover {
+	  color: darkblue;
+	  background-color:blue;
+	  padding:2px;
+	}
+
+
+</style>
+
+
+
+ 
+<body style='background-color:white;font-family:Nunito Sans;background-color:#aeaeae;'>
+ 
+<div class="container p-5"> 
+    <div class="row" >  
+		<br>
+		<br>
+		
+		<br> 
+	</div>
+			
+    <div class="row" >  
+		<br>
+		<br> 
+		<br>   
+		    
+		<div class="col-sm-5"   >  
+			<a href='part6.html'><< Prev: 6. Designing an Artificial Life Form</a>
+		 </div>
+		 
+		 <div class="col-sm-3"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-4"   >  
+			<a href='part8.html'>>> Next: 8. Conclusion</a>
+		 </div>
+	</div>
+	
+	   
+	
+	<div class="row p-5"   >  
+		<div class="col-sm-12"  > 
+			<center> 
+				<h1 style='padding:18px;background-color:#eaeaae'>Part 7 : &nbsp;  Simulation of an Artificial Life Form in a 2d environment</h1>
+			</center>
+			
+			<br>
+			<br>
+			<span style='font-size:0.7em;text-align:center;padding:5px;color:darkred'> </span>
+		 
+			<br><br><br><h3  id="section7.1">&nbsp;7.1. &nbsp; Artificial Life Form : Simulation </h3> 
+			<div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+			 
+			<b>Click "Start" button to start simulation.</b>
+			<br><br>
+			<span style='font-size:0.8em;'>
+			The blue coloured object is the <i>Artificial Life Form</i> ,  situated in a 2d environment with gray coloured walls on each side.
+			The green boxes represent Food.
+			<br> 
+					 In this simulation, to simulate energy expenditure of the Artificial Life Form, energy-level is designed to decrease by 10 units  for every 20 epochs. 
+					<br>  When food is eaten, food-level increases by 20 units.
+					<br>  The DIGEST motor action decreases food-level by 10 units and increases energy-level by 10 units.
+					 <br>  When energy level reaches 0, Alfie dies.
+					  
+			<br>More details in <a href='#section7.2'>section 7.2</a> below.
+			</span>
+			<br><br> 
+			 <span style='font-size:0.7em;float:right;'><a target="_blank" href='ALF_1.html'><img src='newwindow.png'/></a></span> 
+				<iframe   src='ALF_1.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=800 ></iframe> 
+			 </div>
+			
+			
+			
+			<br>
+			<br>
+			<span style='font-size:0.7em;text-align:center;padding:5px;color:darkred'> </span>
+			<br>
+			<h3  id="section7.2" style='margin-top:20px;'>&nbsp;7.2. &nbsp; Detailed description of the simulation </h3> 
+				
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.1. Virtual Environment</h4>
+				<dd>
+					<ul>
+					<li> To illustrate the concepts in a simple manner, a simple <i>two-dimensional</i> virtual environment is used as the location of the "Artificial Life Form".</li>
+					<li> The  <i>Artificial Life Form</i>, which we'll call   <span style='font-family:"Courier New",Courier,monospace;font-weight:bold;'>Alfie</span> ,  is represented by the pointed blue coloured shape.</li>
+					<li> The two-dimensional environment is the white-coloured area and has gray coloured walls on each side. </li>
+					<li> Food placed in this environment is represented by green coloured squares.</li>
+					 
+					
+					 </ul> 
+				</dd>
+				<br>
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.2. Sensory Information</h4>
+				<dd>
+					<br>
+					The 'body' of the <span style='font-family:"Courier New",Courier,monospace;font-weight:bold;'>Alfie</span> 
+					is simulated such that it has a 1-pixel colour sensor "eye"  at its pointed end.
+					  Based on the alignment of Alfie's body, the 1-pixel colour sensor receives light corresponding to what the Alfie "sees".
+					  The colour actually seen by the Alfie's eye is shown in the top left of the simulation UI in the box corresponding to <i>"Colour seen"</i>. 
+					 The 'body' of the <span style='font-family:"Courier New",Courier,monospace;font-weight:bold;'>Alfie</span> 
+					is simulated such that it also has a "touch sensor" at its pointed end.
+					<br><br>   
+					&nbsp;&nbsp;&nbsp;&nbsp;The "brain" of the Artificial Life Form receives the values of the following <u>six sensory stimuli</u>  every epoch :
+					<br> <br>
+					<ol>
+					<li> <B>Red intensity level</B> :  	  This stimuli represents the red intensity level of the incoming light pixel . 
+					  <span style='font-size:0.9em;font-style:italic'>(Intensity range  : 0 to 255)</span>
+					</li>   
+					<li> <B>Green  intensity level</B> :   This stimuli represents the green intensity level of the incoming light pixel . 
+					  <span style='font-size:0.9em;font-style:italic'>(Intensity range  : 0 to 255)</span>
+					</li>
+					<li> <B>Blue  intensity level</B> :   This stimuli represents the blue intensity level of the incoming light pixel . 
+					   <span style='font-size:0.9em;font-style:italic'>(Intensity range  : 0 to 255)</span>
+					</li>   
+					<li><b> Touch</b>  : When Alfie collides with the wall, a TOUCH sensor in its pointed end is activated.  <span style='font-size:0.9em;font-style:italic'>( Intensity range  : { 0,1}   )</span></li></li>
+					<li><b> Food level</b>  :  This internal sensory stimuli indicates the level of food in Alfie's stomach.  <span style='font-size:0.9em;font-style:italic'>( Intensity range  : { 0,1,..100}   )</span></li></li>
+					
+					<li><b> Energy level</b>  : This internal sensory stimuli indicates  Alfie's energy level. 
+					The DIGEST motor action converts FOOD to ENERGY when energy level is low and food is available. 
+					Energy level decreases by 10 units  every 20 epochs. When energy level reaches 0, Alfie dies.
+					
+					 <span style='font-size:0.9em;font-style:italic'>( Intensity range  : { 0,1,..100}   )</span></li>
+				 
+					 </ol>
+					 <br>
+				&nbsp;&nbsp;&nbsp;&nbsp;Note:
+				<ul>
+				<li>The Red, Blue, Green sensory signals and the TOUCH sensory signal are <i>external stimuli</i> arriving to Alfie's brain, while the remaining  stimuli (Food level,Energy level) are <i>internal stimuli</i>.
+				</li>
+				<li>The intensity of the above 6 variables are available to Alfie in a continuous datastream.</li>
+				<li><u>A snapshot of the datastream is taken every epoch(300millisec) and Alfie's brain receives that snapshot of intensity values every epoch.</u></li>
+				<li>In this simulation one epoch is approximately 300 milliseconds.</li>
+				
+				</ul>	 
+				<br> 
+					
+				</dd>
+				 
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.3.Motor actions</h4>
+				<dd>
+					 
+				Alfie is provided with these motor-actions :
+				<ul>
+				<li>  <span class='neurontext'>FORWARD</span> , which makes it move forward by 10 units</li>
+				<li>  <span class='neurontext'>ROTATE_RIGHT</span> , which makes it rotate right from its current orientation by 90 degrees.</li>
+				<li>  <span class='neurontext'>DIGEST</span> motor-action is also present, but this action cannot be initiated voluntarily by Alfie, but only by its autonomous-subsystem. </li>
+				</ul>
+				</dd>
+				 
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.4. Autonomous subsystems</h4>
+				<dd style='margin-left:5px;'>
+					<p>
+					An autonomous subsystem is designed for 'virtual digestion' of the food eaten by Alfie.
+					The autonomous subsystem is required to generate and manage internal stimuli such as food level,energy level,etc.
+					(The need for autonomous subsystem is described in  <a href='part6.html#section6.5'>section 6.5</a>)
+					<br>
+					This subsystem will perform the following functions :
+					<br>
+					&bull;&nbsp;&nbsp; activate HUNGER when  food level is low
+					<br>
+					&bull;&nbsp;&nbsp; trigger DIGEST motor action when EnergyLevel is less and food is available
+					
+					 <br>
+					&bull;&nbsp;&nbsp; inhibit HUNGER when FOOD level is maximum
+					</p>
+					
+					 
+					 
+				</dd>
+				<br> 
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.5. List of Neurons </h4>
+				<dd> 
+					The following neurons are added to Alfie's virtual brain :
+					<br><br>
+					
+					<table style='background-color:#efefef;padding:34px;font-size:0.9em;'>
+						<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td style='padding-right:40px;padding:12px;border:1px solid gray;text-align:center;'>
+								Neuron Category
+							</td>
+							
+							 
+							
+							<td style='padding-right:40px;padding:12px;border:1px solid gray;	'>
+								 Neuron names
+							</td>
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:24px;border-right:1px solid gray;text-align:center;width:30%;text-align:left;'>
+								Neurons for incoming stimuli with non-binary values ( 65 )
+							</td>
+							 
+							
+							<td  style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								<br>Red, Green &amp; Blue  sensory input stimuli have an input intensity range of ( 0 to 255 ).
+								<br>Food-level &amp; Energy-level input stimuli have an input intensity range of ( 0 to 100 ).
+								
+								<br>For each of these stimuli, we need to detect their approximate intensity using an intensity detection circuit.
+								<br>An intensity detection circuit that groups incoming values into four "range buckets" will have 13 neurons.
+								<br>So, for five input stimuli, the total number of neurons = 5 * 13 = <u>65 neurons.  </u>
+								<br> (See <a href='#section7.2.6'>section 7.2.6</a>  for details of each intensity detection circuit) 
+								<br>
+								<br>RED intensity detection circuit has  the following neurons : 
+									<br><span class='neurontext'>R_A1,R_B1,R_C1,R_C2,R_C3,R_C4,R_D1,R_D2,R_D3,R_D4,R_E,R_F,R_Z</span>	
+								<br><br>GREEN intensity detection circuit has  the following neurons : 
+									<br><span  class='neurontext'>G_A1,G_B1,G_C1,G_C2,G_C3,G_C4,G_D1,G_D2,G_D3,G_D4,G_E,G_F,G_Z</span>	
+								<br><br>BLUE intensity detection circuit has  the following neurons : 
+									<br><span class='neurontext'>B_A1,B_B1,B_C1,B_C2,B_C3,B_C4,B_D1,B_D2,B_D3,B_D4,B_E,B_F,B_Z</span>	
+								<br><br>FOOD intensity detection circuit has   the following neurons :
+									<br><span class='neurontext'>F_A1,F_B1,F_C1,F_C2,F_C3,F_C4,F_D1,F_D2,F_D3,F_D4,F_E,F_F,F_Z</span>	
+								<br><br>ENERGY intensity detection circuit has   the following neurons : 
+									<br><span class='neurontext'>E_A1,E_B1,E_C1,E_C2,E_C3,E_C4,E_D1,E_D2,E_D3,E_D4,E_E,E_F,E_Z</span>
+								 
+							 
+							</td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:24px;border-right:1px solid gray;text-align:left;'>
+								Neurons for incoming stimuli with  binary values as input ( 1 )
+							</td>
+							 
+							
+							<td  style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								 
+							 <span class='neurontext'>TOUCH</span><br>
+							  
+							  
+							 
+							</td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:24px;border-right:1px solid gray;text-align:left;'>
+								Neurons for  derived data ( 4 )
+							</td>
+							 
+							<td  style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								
+							 <span class='neurontext'>ONLY_RED</span><br>
+							 <span class='neurontext'>ONLY_BLUE</span><br>
+							 <span class='neurontext'>ONLY_GREEN</span><br> 
+							 <span class='neurontext'>ONLY_YELLOW</span><br>
+							  
+							  
+							</td>
+							
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:24px;border-right:1px solid gray;text-align:left;'>
+								Motor action neurons ( 3 )
+							</td>
+							 
+							
+							<td  style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+							 <span class='neurontext'>FORWARD</span>
+							  <br><span class='neurontext'>ROTATE_RIGHT</span>
+							  <br> <span class='neurontext'>DIGEST</span> 
+							 
+							</td>
+							
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:24px;border-right:1px solid gray;text-align:left;'>
+							 Motivation circuit neurons ( 7 )
+							</td>
+							 
+							
+							<td  style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+							 
+							 <span class='neurontext'>PAIN</span><br>
+							 <span class='neurontext'>HUNGER</span><br> 		
+							 <span class='neurontext'>DECISION</span>
+							  <br><span class='neurontext'>DECISION_B1</span>
+							  <br> <span class='neurontext'>DECISION_B2</span> 
+							  <br> <span class='neurontext'>ROTATE_RIGHT_DECISION</span>
+							  <br> <span class='neurontext'>FORWARD_DECISION</span> 
+							 
+							 
+							</td>
+							
+						</tr>
+					</table>	
+					 
+					 <br>TOTAL NEURONS = (65 + 1 + 4 + 3 + 7) = 80 neurons.
+							
+					
+				</dd>
+				
+				<br>
+				<br>
+				 
+				 
+				<h4 id="section7.2.6" style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.6. Connecting neurons to create desired behaviour</h4>
+				<dd>
+					The following  "neural circuits" (inter-neuronal connections) are created to impart the desired behaviour in the Artificial Life Form.
+					<br>
+					<br>
+					<div style='padding-left:100px;font-size:0.9em';>
+					<b>Note:</b> In the neural circuit diagrams below, unless specified otherwise, all connections are t+1 connections ; <br>inhibitory connection weights are -1.0 ; excitatory connection weights are 1.0 ; neuron thresholds are 1.0 
+					</div>
+					<br> 
+					<table style='background-color:#efefef;padding:34px;font-size:0.9em;width:95%;margin-left:1px;'>
+						<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 1. &nbsp;&nbsp;&nbsp;Intensity detection circuits for detecting intensity level of red/green/blue in incoming light pixel  
+							</td>
+							
+							 
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							 
+							 
+							
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								<a data-fancybox="gallery"  href="img/graph_001_red.png">   <img src='img/graph_001_red.png' height='300'></img> </a>
+							   <a data-fancybox="gallery"  href="img/graph_002_green.png">   <img src='img/graph_002_green.png' height='300'></img> </a>
+							   <a data-fancybox="gallery"  href="img/graph_003_blue.png">    <img src='img/graph_003_blue.png' height='300'></img>	 </a>
+							     <br><br>
+							     This intensity detection circuit is similar to the example seen in  <a href='part4.html#section4.4'>section 4.4</a>.
+							      <br> <br>The consequence of this circuit is as follows:
+							    
+							     <br>
+							     <table style='padding:1px;left:4px;border:1px solid gray;width:40%;font-size:0.8em;'>
+									<tr style='border:1px solid gray;background-color:#cccccc'>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>&nbsp;&nbsp;Input to R_A1 at time (t)</td>
+										<td style='padding:2px;border:1px solid gray;'>&nbsp;&nbsp;Result</td>
+									</tr> 
+									
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level = { 1,2,...,63} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_D1</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level</sub> = {64,65,..127} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_D2</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level</sub> = {128,129,..191} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_D3</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level</sub> >= 192</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_D4</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level</sub> = 0</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_F</i> fires  @ (t+4)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Red level</sub> > 0 </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>R_E</i> fires  @ (t+4)   </td>
+									</tr>
+									</table>
+									<br> 
+							     <table style='padding:1px;left:4px;border:1px solid gray;width:40%;font-size:0.8em;'>
+									<tr style='border:1px solid gray;background-color:#cccccc'>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>&nbsp;&nbsp;Input to G_A1 at time (t)</td>
+										<td style='padding:2px;border:1px solid gray;'>&nbsp;&nbsp;Result</td>
+									</tr> 
+									
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level = { 1,2,...,63} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_D1</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level</sub> = {64,65,..127} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_D2</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level</sub> = {128,129,..191} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_D3</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level</sub> >= 192</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_D4</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level</sub> = 0</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_F</i> fires  @ (t+4)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Green level</sub> > 0 </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>G_E</i> fires  @ (t+4)   </td>
+									</tr>
+									</table>
+									 
+							       <br>
+							        <table style='padding:1px;left:4px;border:1px solid gray;width:40%;font-size:0.8em;'>
+									<tr style='border:1px solid gray;background-color:#cccccc'>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>&nbsp;&nbsp;Input to B_A1 at time (t)</td>
+										<td style='padding:2px;border:1px solid gray;'>&nbsp;&nbsp;Result</td>
+									</tr> 
+									
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level = { 1,2,...,63} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_D1</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level</sub> = {64,65,..127} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_D2</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level</sub> = {128,129,..191} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_D3</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level</sub> >= 192</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_D4</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level</sub> = 0</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_F</i> fires  @ (t+4)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Blue level</sub> > 0 </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>B_E</i> fires  @ (t+4)   </td>
+									</tr>
+									</table>
+									
+							</td>
+							
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							
+							<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 2. &nbsp;&nbsp;&nbsp;Intensity detection circuits for detecting Food-level and Energy-level  
+							</td>
+							
+							 
+						</tr>
+							
+							 
+							 <tr style='border:1px solid gray;'> 	
+							 
+							 
+							
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								  <a data-fancybox="gallery"  href="img/graph_004_food.png">    <img src='img/graph_004_food.png' height='300'></img> </a>		
+								  <a data-fancybox="gallery"  href="img/graph_005_energy.png">   <img src='img/graph_005_energy.png' height='300'></img>	 </a>
+							  
+							  
+							     <br> <br>
+							        <table style='padding:1px;left:4px;border:1px solid gray;width:40%;font-size:0.8em;'>
+									<tr style='border:1px solid gray;background-color:#cccccc'>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>&nbsp;&nbsp;Input to F_A1 at time (t)</td>
+										<td style='padding:2px;border:1px solid gray;'>&nbsp;&nbsp;Result</td>
+									</tr> 
+									
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level = { 1,2,...,24} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_D1</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level</sub> = {24,25,..49} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_D2</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level</sub> = {50,51,..74} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_D3</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level</sub> >= 75</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_D4</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level</sub> = 0</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_F</i> fires  @ (t+4)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Food level</sub> > 0 </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>F_E</i> fires  @ (t+4)   </td>
+									</tr>
+									</table>
+								<br> <br>
+							        <table style='padding:1px;left:4px;border:1px solid gray;width:40%;font-size:0.8em;'>
+									<tr style='border:1px solid gray;background-color:#cccccc'>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>&nbsp;&nbsp;Input to E_A1 at time (t)</td>
+										<td style='padding:2px;border:1px solid gray;'>&nbsp;&nbsp;Result</td>
+									</tr> 
+									
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level = { 1,2,...,24} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_D1</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level</sub> = {24,25,..49} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_D2</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level</sub> = {50,51,..74} </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_D3</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level</sub> >= 75</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_D4</i> fires  @ (t+3)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level</sub> = 0</td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_F</i> fires  @ (t+4)   </td>
+									</tr>
+									<tr>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'>Energy level</sub> > 0 </td>
+										<td style='padding:2px;border:1px solid gray;border-right:1px solid gray;'> <i>E_E</i> fires  @ (t+4)   </td>
+									</tr>
+									</table>	
+							</td>
+							
+						</tr>
+						 
+						<tr style='border:1px solid gray;'> 	
+							
+							<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 3. &nbsp;&nbsp;&nbsp;Colour detection circuits to detect strong levels of RED,BLUE,GREEN and YELLOW colours
+							</td>  
+						</tr> 
+						 <tr style='border:1px solid gray;'>  
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								 <br>&bull; &nbsp;&nbsp;
+								 When Red and Green are at maximum levels, and Blue is zero, then ONLY_YELLOW is activated
+								<br>&bull; &nbsp;&nbsp;
+								 
+								  When Red is at maximum level,  Green is zero and Blue are zero, then ONLY_GREEN is activated
+								 <br>&bull; &nbsp;&nbsp;
+								  When Blue is at maximum level,  Red is zero and Green are zero, then ONLY_BLUE is activated
+								<br>&bull; &nbsp;&nbsp;
+								  When Green is at maximum level,  Red is zero and Blue are zero, then ONLY_GREEN is activated
+								 <br><br>
+								 <a data-fancybox="gallery"  href="img/graph_009_only_yellow.png">  <img src='img/graph_009_only_yellow.png' height='300'></img>		 </a> 
+								   <a data-fancybox="gallery"  href="img/graph_008_only_blue.png">   <img src='img/graph_008_only_blue.png' height='300'></img>	 </a>
+								   <a data-fancybox="gallery"  href="img/graph_006_only_red.png"> <img src='img/graph_006_only_red.png' height='300'></img> </a>
+								    <a data-fancybox="gallery"  href="img/graph_007_only_green.png">  <img src='img/graph_007_only_green.png' height='300'></img> </a>
+							</td> 
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							
+							<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 4. &nbsp;&nbsp;&nbsp;Hunger and digestion circuits
+							</td>  
+						</tr> 
+						 <tr style='border:1px solid gray;'>  
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								  
+								 <br>&bull; &nbsp;&nbsp; When Food is at maximum(F_D4), then HUNGER is inhibited. If Food is zero(F_F) or Food is low(F_D1,F_D2,F_D3) , then activate HUNGER neuron.
+								  
+								 <br>&bull; &nbsp;&nbsp;If (Energy i  is zero(E_F) or Energy is low(F_D1,F_D2,F_D3) ) AND  Food >0 (F_E), then activate DIGEST neuron. 
+								  <br><br> <a data-fancybox="gallery"  href="img/graph_010_hunger.png">   <img src='img/graph_010_hunger.png' height='300'></img>	 </a>
+								  <a data-fancybox="gallery"  href="img/graph_011_digest.png">  		<img src='img/graph_011_digest.png' height='300'></img>	 </a>
+								  <br><br>
+								 
+							</td> 
+						</tr>
+						
+						
+						
+						
+						
+						<tr style='border:1px solid gray;'> 	
+							
+							<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 5. &nbsp;&nbsp;&nbsp;Food-seeking innate connection and Touch reflex
+							</td>  
+						</tr> 
+						 <tr style='border:1px solid gray;'>  
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								  <br><br>  <a data-fancybox="gallery"  href="img/graph_012_food_seeking_behaviour.png">  <img src='img/graph_012_food_seeking_behaviour.png' height='300'></img>	 </a>	
+								   <br><br> 
+								 <br><b> Behaviour created by this neural circuit :</b>
+								 <br>
+							&bull; &nbsp;&nbsp;Temporally sharpen TOUCH input signal, ie., avoid continous excitation, just fire once and inhibit immediate self-excitation
+							<br>
+							&bull; &nbsp;&nbsp;If TOUCH detected, then  rotate-right only once and then go-forward once.
+							<br>&bull; &nbsp;&nbsp;Avoid rotating repeatedly, limit consecutive rotations
+							<br>&bull; &nbsp;&nbsp;If colour seen is pure GREEN (food) , then send a very strong signal to move forward  and inhibit rotate_right strongly for the next few timesteps.
+							<br>&bull; &nbsp;&nbsp;Prevent rotate right at same time as ONLY_GREEN fires
+							 <br><br>
+							
+								 
+								 
+							</td> 
+						</tr>
+						
+						
+							
+						<tr style='border:1px solid gray;'> 	
+							
+							<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td colspan =2 style='font-family:"Roboto Slab";font-size:1em;width:35%;padding-right:40px;padding:12px;border:1px solid gray;text-align:left;'>
+								 6. &nbsp;&nbsp;&nbsp; Motivation and Decision circuit
+							</td>  
+						</tr> 
+						 <tr style='border:1px solid gray;'>  
+							<td  colspan=2 style='padding-left:10px;padding:14px;border-right:1px solid gray;	'>
+								  <br><br>  <a data-fancybox="gallery"  href="img/graph_013_motivation_and_decision_circuit.png">  		<img src='img/graph_013_motivation_and_decision_circuit.png' height='450'></img> </a>
+
+						<br><br> 
+								 <br><b> Behaviour created by this neural circuit :</b>
+								 
+							 
+							<br>&bull; &nbsp;&nbsp;When Food level is less than 75, one of F_D1, F_D2 or F_D3 neurons is activated, triggering HUNGER neuron activation. 
+							<br>&bull; &nbsp;&nbsp;HUNGER neuron which inturn activates PAIN neuron
+							<br>&bull; &nbsp;&nbsp;PAIN neuron then  activates the DECISION neuron with a fluctuating random weight, resulting in an input to DECISION neuron of between 1.0 to 2.0
+							
+
+
+<br>&bull; &nbsp;&nbsp;The output from DECISION neuron is sent to DECISION_B1 and DECISION_B2 neurons. DECISION_B1 fires if threshold 1.0 is crossed,and DECISION_B2 fires only if a higher threshold of 1.9 is crossed.
+    <br>&bull; &nbsp;&nbsp;This creates the probability of DECISION_B1 firing 90% of the time and DECISION_B2 firing 10% of the time. 
+<br>&bull; &nbsp;&nbsp;In this particular environment, moving forward 90% of the time provides a higher survival advantage compared to moving forward 50% of the time, that is the reasoning behind assigning threshold 1.9 for DECISION_B2 neuron.
+
+    <br>&bull; &nbsp;&nbsp;Since DECISION_B1 triggers FORWARD motor action and DECISION_B2 triggers ROTATE_RIGHT motor action, 
+    FORWARD motor action is 90% likely to be activated, and ROTATE_RIGHT motor action is 10% likely to be activated.
+     <br>&bull; &nbsp;&nbsp;So finally, depending on whether FORWARD or ROTATE_RIGHT is activated, Alfie moves or rotates accordingly.
+   
+							
+								 
+								 
+							</td> 
+						</tr>
+						 
+						
+					</table>
+					
+					
+					  
+							
+					
+				</dd>
+				 
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.7. Observed behaviour in this simulation</h4>
+				<dd>
+					<br>
+					<table style='background-color:#efefef;padding:34px;font-size:0.9em;'>
+						<tr style='background-color:#ffaaaa;border:1px solid gray;'>
+							<td style='padding-right:40px;padding:12px;border:1px solid gray;	'>
+								No.
+							</td>
+							<td style='padding-right:40px;padding:12px;border:1px solid gray;	'>
+								Scenario
+							</td>
+							
+							<td  style='padding-left:30px;padding:12px;border:1px solid gray;	'>
+								Resultant behaviour
+							</td>
+						</tr>
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								1
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								Click "Yellow light flash" button to shine yellow light in the Alfie's eye.
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								The visual sensor receives yellow light ie., (R_A1=255,	G_A1 = 255, B_A1=0)
+								<br>This triggers the yellow-colour detection circuit and causes  
+								<span style='font-family:"Courier New",Courier,monospace;font-weight:bold;'>ONLY_YELLOW</span> neuron to be activated after a few epochs and the <span class='neurontext'>ONLY_YELLOW</span>  neuron flashes in the UI
+							</td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								2
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								Click "Blue light flash" button to shine blue light in the Alfie's eye.
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								The visual sensor receives blue light ie., (R_A1=0,	G_A1 = 0, B_A1=255)
+								<br>This triggers the blue-colour detection circuit and causes  
+								<span class='neurontext'>ONLY_BLUE</span> neuron to be activated  after a few epochs and the <span class='neurontext'>ONLY_BLUE</span>  neuron flashes in the UI
+							</td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								 3
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								Click "Place food" button  to place green coloured food in a random place in the environment.
+								Repeat this so that Alfie eats more food ,until foodlevel > 100 and energylevel > 100
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								 When FoodLevel is high, it inhibits the <span class='neurontext'>HUNGER</span> neuron.
+								 <br>This in turn inhibits  <span class='neurontext'>PAIN</span>, which inturn inhibits the <span class='neurontext'>DECISION</span> neuron from firing.
+								 <br>So Alfie just stays where it is, unmotivated and idle ; Until energy level and food level drops over the next dozen epochs. 
+							</td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								 4
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								Click "Lights off" radio button.   
+								This prevents any light from reaching eye, RGB values in incoming datastream will be zero
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								Alfie explores environment even if it is dark.
+								But less likely to survive in the dark due to inability to see  GREEN coloured food and move forward towards it.
+							 </td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								 5
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								 Alfie sees green coloured food
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								 When Alfie sees green coloured food , the input ( R_A1=0, G_A1=255, B_A1=0 ) is sent as visual input.
+								 The <span class='neurontext'>ONLY_GREEN</span> neuron is activated after a few time steps, which inturn strongly triggers 
+								<span class='neurontext'> FORWARD</span> motor action and strongly inhibits   <span class='neurontext'>ROTATE_RIGHT </span>motor action  
+								 Alfie keeps moving until it collides with the food and consumes it.
+							 </td>
+							
+						</tr>
+						
+						<tr style='border:1px solid gray;'> 	
+							<td style='padding-right:40px;padding:4px;border-right:1px solid gray;text-align:center;'>
+								 6
+							</td>
+							<td style='padding-right:40px;padding:7px;border-right:1px solid gray;	'>
+								 Alfie hits wall
+							</td>
+							
+							<td  style='padding-left:30px;padding:14px;border-right:1px solid gray;	'>
+								<span class='neurontext'> TOUCH </span>neuron is activated (just) once.
+								 The <span class='neurontext'>TOUCH</span> neuron activates <span class='neurontext'>ROTATE_RIGHT</span> motor in the next timestep and  <span class='neurontext'>FORWARD</span> motor action in the second timestep. 
+							 </td>
+							
+						</tr>
+						
+					 
+					
+					
+					
+					</table>
+					
+					<br>
+					  
+					
+					
+				</dd>
+				
+				 
+				<h4 style='margin-left:5px;font-size:1em;font-family:"Roboto Slab",Serif;color:#009698'>7.2.8. Other notes on this simulation</h4>
+				<dd>
+					 
+				   This simulation demonstrates how the fusion between perception and action can be achieved.
+				   In this simulation, only food-seeking behaviour is demonstrated.
+				   However, it is indeed possible to demonstrate more complex behaviours using the same model, like generalization,causality,reinforcement-learning,etc.,  
+				   by adding more connections, motor-actions and permitting dynamic-connection creation , as seen earlier in  <a href='part6.html#section6.7'>section 6.7</a>.
+				   
+					
+				</dd>
+					 
+		  </div>
+		  
+			
+	</div>
+    
+     
+			<dd>
+
+			 
+    
+     <div class="row" >  
+		    
+		<div class="col-sm-5"   >  
+			<a href='part6.html'><< Prev: 6. Designing an Artificial Life Form</a>
+		 </div>
+		 
+		 <div class="col-sm-3"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-4"   >   <a href='part8.html'>>> Next: 8. Conclusion</a>
+		 </div>
+				<br> 
+				<br>
+				<br> 
+				<br>
+	     
+	</div>
+	
+     
+	
+    	 
+	
+</div>
+ 		
+  
+</body>	
+	  
+</html>

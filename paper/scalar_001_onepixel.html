@@ -1,0 +1,623 @@
+<html>
+
+
+
+
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  >
+ 
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+  
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"  ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"  ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"   ></script>
+ 
+    <script src='cytoscape.min.js'></script>
+    <script src="popper.js"></script>
+    <script src="cytoscape-popper.js"></script>
+    <script src="tippy.js"></script>
+    <script src="apexcharts.js"></script>
+    <script src="jquery.min.js"></script>
+     <script src="brain.v2.js"></script> 
+    <link rel="stylesheet" href="tippy.css" />
+    
+    
+</head>
+<style>
+    #cy { 
+        position: absolute; 
+    }
+    
+    /* makes sticky faster; disable if you want animated tippies */
+		.tippy-popper {
+			transition: none !important;
+		}
+	
+</style>
+
+
+
+
+
+<script language="javascript">
+
+
+ 
+
+  
+
+/////////////////////////////////////////////////////////////////////////////////
+var makeTippy = function(node, text,placement, preferredClass){
+	return tippy( node.popperRef(), {
+		content: function(){
+			var div = document.createElement('div');
+			div.innerHTML = text; 
+			if (preferredClass != undefined){
+				div.classList.add(preferredClass);
+			}
+			return div;
+		},
+		trigger: 'click',
+		arrow: true,
+		placement: placement,
+		hideOnClick: false,
+		multiple: true,
+		sticky: false
+	} );
+};
+////////////////////////////////////////////////////////////////////////////////////
+
+function destroyTippys(){
+	$('.tippy-popper').remove();  
+}
+
+
+function drawGraphCustom( brainObject, cytoscapeObject){
+	
+	var neurons = [];
+	var edges = [];
+	
+	for(var n=0;n<brainObject.neurons.length;n++){
+			 
+			 neurons.push({	name:brainObject.neurons[n].name,
+							threshold: brainObject.neurons[n].threshold,
+							isBinary:brainObject.neurons[n].isBinaryOutput,
+							alwaysOn:brainObject.neurons[n].alwaysOn
+							});
+	}			
+	
+	for (var hh=1;hh<brainObject.connectionMatrix.length;hh++){ 
+		for(var n=0;n<brainObject.neurons.length;n++){ 
+			for(var n2=0;n2<brainObject.neurons.length;n2++){  
+				if (brainObject.connectionMatrix[hh][n][n2] != 0){
+					edges.push({source: brainObject.neurons[n].name,target: brainObject.neurons[n2].name,connectionWeight:brainObject.connectionMatrix[hh][n][n2],timestep:hh});
+				} 
+			}
+		}
+		
+	}
+		 
+	//draw neurons
+	
+	
+	
+	//draw invisible neurons  to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true || brainObject.neurons[i].hideNeuron  == true){ 
+			 var thisnode = cytoscapeObject.add({
+				data: { id: neurons[i]["name"]+"_ENV" }
+				}
+			);
+			thisnode.style({"visibility":'hidden', 'border-color':'black','border-width':0}); 
+			 
+		} 
+	}
+
+	for (var i = 0; i < neurons.length; i++) {
+		var thisnode = cytoscapeObject.add({
+			data: { id: neurons[i]["name"] }
+			}
+		);
+		thisnode.style({"label":neurons[i]["name"]}); 
+	} 
+	
+	
+	
+	//add tooltips for each neuron
+	for (var i = 0; i < neurons.length; i++) {
+		var tooltip =  'threshold θ ='+brainObject.neurons[i].threshold ;
+		if( brainObject.neurons[i].isBinaryOutput  == true){ 
+			tooltip = tooltip +"<br> max.output=1";
+		}else{
+			cytoscapeObject.getElementById(neurons[i]["name"]).style("shape","square");
+			
+		}
+//		 makeTippy(cytoscapeObject.getElementById(neurons[i]["name"]),tooltip ).show();
+	} 
+
+
+
+	
+
+
+
+	for (var i = 0; i < edges.length; i++) {
+		var thisedge  = cytoscapeObject.add({
+			data: { id: edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"], source : edges[i]["source"], target  : edges[i]["target"] ,connectionWeight : edges[i]["connectionWeight"], timestep : edges[i]["timestep"] }
+			}
+		);
+		thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+						"source-label": " t+"+edges[i]["timestep"]+" ", "label": 'w = '+edges[i]["connectionWeight"],
+						'font-size':12,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9});
+	
+		//makeTippy(cytoscapeObject.getElementById(edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"]), "epoch  sending "  , 'bottom').show();
+		
+	} 
+	cytoscapeObject.nodes().style({'font-size':'1.7em', 'width': '3em','height':'3em', 'text-valign': 'center','background-color':'#ccc', 'border-color':'black', 'border-width':1 });
+	cytoscapeObject.edges().style({'line-color':'#333', 
+						'border-color':'black', 'border-width':2 ,
+					'curve-style': 'bezier',
+					'width': 1,  
+					'target-arrow-shape': 'triangle', 
+					 'target-arrow-color': '#333',   
+					'arrow-scale':1.5});
+	 
+	cytoscapeObject.edges('[connectionWeight < 0]').style({'width':2, 'line-color': 'red', 'target-arrow-shape': 'triangle-cross', 'target-arrow-color': 'red' });
+	
+	
+	//draw invisible  edges from invisible neurons to sensory neurons, to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true){ 
+			  
+			var thisedge  = cytoscapeObject.add({
+								data: { id: neurons[i]["name"]+"_ENVINPUT", 
+										source : neurons[i]["name"]+"_ENV", 
+										target  : neurons[i]["name"]  
+										 }
+								}
+							);
+			thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+							"source-label": "", "label": '','line-color':'blue',
+							'font-size':8,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9,
+							'line-color':'blue', 
+							'border-color':'black', 'border-width':2 ,
+							'curve-style': 'bezier',
+							'width': 1,  'line-style':'dashed',
+							'target-arrow-shape': 'vee', 
+							 'target-arrow-color': 'blue',   
+							'arrow-scale':1.5
+							});
+		} 
+	}
+	
+	
+	
+	//mark Z as always on
+	//makeTippy(cytoscapeObject.getElementById("Z"), "always On" ).show();
+	 
+
+	cytoscapeObject.layout({
+		name: 'breadthfirst'
+	}).run();  
+}
+
+
+
+
+
+var epochCount = 0;
+var circuit;
+var brain1;
+var datastream_to_use;		
+var cy;
+var chartobj;
+var idleInterval = null;
+var idleTime = 0;
+
+
+
+
+
+
+function get_scalar_encoder_brain(){
+	var brainx = new Brain({stepsAhead:8}); 
+	
+	
+	
+	
+	var A1 = new Neuron({name:  "A1",threshold:1,	isBinaryOutput :false,isSensoryNeuron:true});
+	var B1 = new Neuron({name:  "B1",threshold:1,	isBinaryOutput :false});
+	
+	var C1 = new Neuron({name:  "C1",threshold:1,	isBinaryOutput :true}); 
+	var C2 = new Neuron({name:  "C2",threshold:50,	isBinaryOutput :true}); 
+	var C3 = new Neuron({name:  "C3",threshold:100,	isBinaryOutput :true}); 
+	var C4 = new Neuron({name:  "C4",threshold:150,	isBinaryOutput :true});
+	var C5 = new Neuron({name:  "C5",threshold:200,	isBinaryOutput :true});
+
+	var D1 = new Neuron({name:  "D1",threshold:1,	isBinaryOutput :true}); 
+	var D2 = new Neuron({name:  "D2",threshold:1,	isBinaryOutput :true}); 
+	var D3 = new Neuron({name:  "D3",threshold:1,	isBinaryOutput :true}); 
+	var D4 = new Neuron({name:  "D4",threshold:1,	isBinaryOutput :true});
+	var D5 = new Neuron({name:  "D5",threshold:1,	isBinaryOutput :true});
+
+	
+	var E = new Neuron({name:  "E",threshold:1,	isBinaryOutput :false}); 
+	
+	//for Inverse Neuron generation
+	var Z = new Neuron({name:  "Z",threshold:1,	isBinaryOutput :true,alwaysOn:true});
+	var F = new Neuron({name:  "F",threshold:1,	isBinaryOutput :false}); 
+	  
+	var G = new Neuron({name:  "G",threshold:1,	isBinaryOutput :false}); 
+	var H = new Neuron({name:  "H",threshold:1,	isBinaryOutput :false}); 
+	
+	var I1 = new Neuron({name:  "I1",threshold:1,	isBinaryOutput :false}); 
+	var I2 = new Neuron({name:  "I2",threshold:2,	isBinaryOutput :false}); 
+	var I3 = new Neuron({name:  "I3",threshold:3,	isBinaryOutput :false}); 
+	
+	var J1 = new Neuron({name:  "J1",threshold:1,	isBinaryOutput :false}); 
+	var J2 = new Neuron({name:  "J2",threshold:2,	isBinaryOutput :false}); 
+	var J3 = new Neuron({name:  "J3",threshold:3,	isBinaryOutput :false}); 
+	
+	
+	var K1 = new Neuron({name:  "K1",threshold:1,	isBinaryOutput :true}); 
+	var K2 = new Neuron({name:  "K2",threshold:1,	isBinaryOutput :true}); 
+	var K3 = new Neuron({name:  "K3",threshold:1,	isBinaryOutput :true}); 
+	
+	var L1 = new Neuron({name:  "L1",threshold:1,	isBinaryOutput :true}); 
+	var L2 = new Neuron({name:  "L2",threshold:1,	isBinaryOutput :true}); 
+	var L3 = new Neuron({name:  "L3",threshold:1,	isBinaryOutput :true}); 
+	
+	
+	brainx.add_neuron( A1 );
+	brainx.add_neuron( B1 );
+	
+	brainx.add_neuron( C1 );
+	brainx.add_neuron( C2 );
+	brainx.add_neuron( C3 );
+	brainx.add_neuron( C4 );
+	brainx.add_neuron( C5 );
+
+	brainx.add_neuron( D1 );
+	brainx.add_neuron( D2 );
+	brainx.add_neuron( D3 );
+	brainx.add_neuron( D4 );
+	brainx.add_neuron( D5 );
+	
+	brainx.add_neuron( Z );
+	brainx.add_neuron( E );
+	brainx.add_neuron( F );
+	brainx.add_neuron( G );
+	brainx.add_neuron( H );
+	
+	brainx.add_neuron( I1 );
+	brainx.add_neuron( I2 );
+	brainx.add_neuron( I3 );
+	brainx.add_neuron( J1 );
+	brainx.add_neuron( J2 );
+	brainx.add_neuron( J3 );
+	
+	brainx.add_neuron( K1 );
+	brainx.add_neuron( K2 );
+	brainx.add_neuron( K3 );
+	brainx.add_neuron( L1 );
+	brainx.add_neuron( L2 );
+	brainx.add_neuron( L3 );
+	
+	
+	   
+	brainx.init_connections()
+	brainx.create_connection({ fromNeuronName :"A1", toNeuronName :"B1", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"B1", toNeuronName :"C1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"B1", toNeuronName :"C2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"B1", toNeuronName :"C3", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"B1", toNeuronName :"C4", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"B1", toNeuronName :"C5", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	
+	brainx.create_connection({ fromNeuronName :"C1", toNeuronName :"D1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"C2", toNeuronName :"D2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"C3", toNeuronName :"D3", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"C4", toNeuronName :"D4", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"C5", toNeuronName :"D5", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"C2", toNeuronName :"D1", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"C3", toNeuronName :"D2", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"C4", toNeuronName :"D3", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"C5", toNeuronName :"D4", synapticStepNumber:1, connectionWeight:-1.0}); 
+		
+	
+	brainx.create_connection({ fromNeuronName :"D1", toNeuronName :"E", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"D2", toNeuronName :"E", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"D3", toNeuronName :"E", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"D4", toNeuronName :"E", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"D5", toNeuronName :"E", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	//F is the inverse of E
+	brainx.create_connection({ fromNeuronName :"Z",  toNeuronName :"F", synapticStepNumber:1, connectionWeight:1.0});
+	brainx.create_connection({ fromNeuronName :"D1", toNeuronName :"F", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"D2", toNeuronName :"F", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"D3", toNeuronName :"F", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"D4", toNeuronName :"F", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"D5", toNeuronName :"F", synapticStepNumber:1, connectionWeight:-1.0}); 
+	
+	// G accumulates E over 3 timesteps (temporal summation)
+	brainx.create_connection({ fromNeuronName :"E", toNeuronName :"G", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"E", toNeuronName :"G", synapticStepNumber:2, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"E", toNeuronName :"G", synapticStepNumber:3, connectionWeight:1.0}); 
+	
+	// H accumulates F over 3 timesteps (temporal summation)
+	brainx.create_connection({ fromNeuronName :"F", toNeuronName :"H", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"F", toNeuronName :"H", synapticStepNumber:2, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"F", toNeuronName :"H", synapticStepNumber:3, connectionWeight:1.0}); 
+	
+	
+	brainx.create_connection({ fromNeuronName :"G", toNeuronName :"I1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"G", toNeuronName :"I2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"G", toNeuronName :"I3", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"H", toNeuronName :"J1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"H", toNeuronName :"J2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"H", toNeuronName :"J3", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"E", toNeuronName :"H", synapticStepNumber:1, connectionWeight:-3.0});
+	brainx.create_connection({ fromNeuronName :"F", toNeuronName :"G", synapticStepNumber:1, connectionWeight:-3.0}); 
+		
+	
+	brainx.create_connection({ fromNeuronName :"I1", toNeuronName :"K1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"I2", toNeuronName :"K2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"I3", toNeuronName :"K3", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"J1", toNeuronName :"L1", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"J2", toNeuronName :"L2", synapticStepNumber:1, connectionWeight:1.0}); 
+	brainx.create_connection({ fromNeuronName :"J3", toNeuronName :"L3", synapticStepNumber:1, connectionWeight:1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"I2", toNeuronName :"K1", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"I3", toNeuronName :"K2", synapticStepNumber:1, connectionWeight:-1.0}); 
+	
+	brainx.create_connection({ fromNeuronName :"J2", toNeuronName :"L1", synapticStepNumber:1, connectionWeight:-1.0}); 
+	brainx.create_connection({ fromNeuronName :"J3", toNeuronName :"L2", synapticStepNumber:1, connectionWeight:-1.0}); 
+	
+	
+		var datastream_to_use  = [];
+	 
+	return { brain:brainx, datastream_to_use :datastream_to_use} ;
+	  
+	   
+}
+
+
+var canvasElem,canvasContext; 
+var grayScaleValueNow ;
+var startedSending = false;
+$(window).on('load', function() {
+	
+		
+	$( "#myCanvas" ).mouseover(function(e) {
+		 $('#myCanvas').css('cursor','pointer'); 
+		 if (startedSending == false){
+			 send_inputs();
+			startedSending = true;
+		 }
+	});
+	
+	$( "#myCanvas" ).mousemove(function(e) { 
+		   var relX = e.pageX; 
+		   var relY = e.pageY ;
+	    
+			var data = canvasContext.getImageData(relX, relY, 1, 1).data;
+			var rgb = [ data[0], data[1], data[2] ]; 
+			canvasContext.fillStyle = "rgb("+data[0]+","+data[1]+","+data[2]+")"; 
+			canvasContext.fillRect(3, 3, 50, 50);
+			canvasContext.fillRect(3, 3, 50, 50);
+			canvasContext.font = '18px serif';
+			canvasContext.fillStyle = 'darkorange';
+			canvasContext.strokeStyle = 'red';
+			grayScaleValueNow = (data[0] + data[1] +data[2] )/3;
+			canvasContext.fillText( grayScaleValueNow , 15, 35);
+			//canvasContext.strokeText( grayScaleValueNow , 15, 35);
+			
+			
+	 
+	});
+
+
+	$( "#myCanvas" ).mouseleave(function() {
+		 $('#myCanvas').css('cursor','auto'); 
+	});
+
+	
+	canvasElem = document.getElementById("myCanvas");
+	canvasContext = canvasElem.getContext("2d"); 
+
+	var grd = canvasContext.createLinearGradient(100, 0, 270, 0);
+	grd.addColorStop(0, "black");
+	grd.addColorStop(0.2, "black");
+	grd.addColorStop(0.8, "white");
+	grd.addColorStop(1, "white");
+
+	canvasContext.fillStyle = grd;
+	canvasContext.fillRect(100, 0, 270, 100); 
+	 
+	var chartoptions = getChartOptions();
+	chartobj = new ApexCharts(
+	  document.querySelector("#chart"),
+	  chartoptions
+	); 
+	chartobj.render();  
+    cy = cytoscape({ userZoomingEnabled:false, container: document.getElementById('cy')});  
+	
+	circuit = get_scalar_encoder_brain();
+	brain1 = circuit.brain;
+	datastream_to_use = circuit.datastream_to_use; 
+	
+	
+	
+	drawGraphCustom(brain1, cy);     
+	
+	cy.layout({
+		name: 'preset'
+	}).run();  
+	
+	//var A1_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["A1"]; }); 
+	 
+	
+	/*
+	$('#inputstream').html( "<br> <b>Encoding a scalar (intensity) value :   </b><br>  &bull; &nbsp; &nbsp;"+
+	"  "+
+	"<br>&bull; &nbsp;&nbsp;  "+ 
+	"<br>&bull; &nbsp;&nbsp;Thresholds : &nbsp;&nbsp; <i>θ<sub>C1</sub></i> = 1 ; &nbsp;<i>θ<sub>C2</sub></i> = 64  ; &nbsp;<i>θ<sub>C2</sub></i> = 128; &nbsp;<i>θ<sub>C2</sub></i> = 192; &nbsp;<i>θ<sub>C2</sub></i> = 255;"+
+	" <br>&bull; &nbsp;&nbsp;All other neurons' thresholds = 1 "+  
+	 " <br>  &bull; &nbsp; &nbsp; <br>"  );
+ */
+	  cy.$('#A1_ENV').position({	  x: 300 + 20 ,y: -180 + 10	});
+	  cy.$('#A1').position({	  x: 300 + 220 ,y: -180 + 10	});
+	  cy.$('#B1').position({	  x: 300 + 220 ,y: -180 + 110	}); 
+	  
+	  cy.$('#C1').position({	  x: 300 + 20 ,y: -180 + 210	}); 
+	  cy.$('#C2').position({	  x: 300 + 120 ,y: -180 + 210	}); 
+	  cy.$('#C3').position({	  x: 300 + 220 ,y: -180 + 210	}); 
+	  cy.$('#C4').position({	  x: 300 + 320 ,y: -180 + 210	}); 
+	  cy.$('#C5').position({	  x: 300 + 420 ,y: -180 + 210	}); 
+	  cy.$('#D1').position({	  x: 300 + 20 , y: -180 + 410	}); 
+	  cy.$('#D2').position({	  x: 300 + 120 ,y: -180 + 410	}); 
+	  cy.$('#D3').position({	  x: 300 + 220 ,y: -180 + 410	}); 
+	  cy.$('#D4').position({	  x: 300 + 320 ,y: -180 + 410	}); 
+	  cy.$('#D5').position({	  x: 300 + 420 ,y: -180 + 410	}); 
+	  
+	  cy.$('#E').position({	  x: 300 + 90 ,y: -180 + 610	});
+	  cy.$('#F').position({	  x: 300 + 290 ,y: -180 + 610	});
+	  cy.$('#Z').position({	  x: 300 + 590 ,y: -180 + 610	});
+	  
+	  cy.$('#G').position({	  x: 300 + 90 ,y: -180 + 810	});
+	  cy.$('#H').position({	  x: 300 + 290 ,y: -180 + 810	});
+	  
+	  
+	  cy.$('#I1').position({	  x: 300 + 20 ,y: -180 + 910	});
+	  cy.$('#I2').position({	  x: 300 + 90 ,y: -180 + 910	});
+	  cy.$('#I3').position({	  x: 300 + 160 ,y: -180 + 910	});
+	  cy.$('#K1').position({	  x: 300 + 20 ,y: -180 + 1110	});
+	  cy.$('#K2').position({	  x: 300 + 90 ,y: -180 + 1110	});
+	  cy.$('#K3').position({	  x: 300 + 160 ,y: -180 + 1110	});
+	  
+	  cy.$('#J1').position({	  x: 300 + 220 ,y: -180 + 910	});
+	  cy.$('#J2').position({	  x: 300 + 290 ,y: -180 + 910	});
+	  cy.$('#J3').position({	  x: 300 + 360 ,y: -180 + 910	});
+	  cy.$('#L1').position({	  x: 300 + 220 ,y: -180 + 1110	});
+	  cy.$('#L2').position({	  x: 300 + 290 ,y: -180 + 1110	});
+	  cy.$('#L3').position({	  x: 300 + 360 ,y: -180 + 1110	});
+	   
+ 
+   // send_inputs();
+});
+
+function send_inputs(){ 
+	 
+	epochCount=0;
+	brain1.clear_inputs();
+	$('#sendbutton').attr("disabled", true);
+	var tippyPlacement = 'top';  
+	 clearInterval(idleInterval);
+	idleInterval = setInterval(function(){ 
+			send_info_to_brain(  brain1, cy, chartobj,tippyPlacement); 
+	},1000); 
+	
+}
+
+
+function send_info_to_brain( brainObject, cytoscapeObject, chartObject, tippyPlacement){ 
+	
+	
+	 
+	destroyTippys(); 
+	
+	$('#epochinfo').html("Current epoch  : "+ epochCount +" <br>  " ); 
+	
+	vv = epochCount;
+	brainObject.clear_inputs();
+	
+	
+	 
+	neuronName = 'A1';	
+		 
+	brainObject.sensoryValuesDict[ neuronName ] = parseFloat(grayScaleValueNow); 
+	
+	
+//	$('#epochinfo').html ( $('#epochinfo').html() + "<br>Sending input signal to neuron "+neuronName+" with intensity  <i>i<sub>a</sub></i>= "+ parseFloat(grayScaleValueNow));
+	makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ grayScaleValueNow , "left").show();
+	//}
+	
+	//then move to next epoch  
+	var tippyStr = " input <i>i<sub>a</sub></i>= "+ grayScaleValueNow +"<br> threshold <i>θ<sub>a</sub></i>=   "+brainObject.get_neuron_by_name(neuronName).threshold;
+	var outputval;
+	if (grayScaleValueNow >= brainObject.get_neuron_by_name(neuronName).threshold ){
+		
+		  outputval = grayScaleValueNow;
+		if (brainObject.get_neuron_by_name(neuronName).isBinaryOutput == true){
+			outputval = 1; 
+		} 
+		tippyStr +="<br><br>input >= threshold <br> neuron FIRES with output  <i>O<sub>a</sub></i>  =  "+outputval; 
+		
+	}else{
+		tippyStr +="<br>input < threshold, neuron DOESN'T FIRE"; 
+		outputval = 0;
+	}
+	
+  
+	///
+	
+	
+	brainObject.next_epoch();
+	
+	//// 
+	
+	drawFiringFrame(brainObject,chartObject, cytoscapeObject);
+		
+	epochCount +=1;
+    
+}
+
+
+
+</script>
+ 
+	
+<body style='background-color:white;font-family:Nunito Sans;background-color:lightyellow;'>
+   
+		  
+ 
+	<div class="row"  style="top:0px;height:750px;">
+		
+	  <div class="col-sm-6"  id="cy" style='border:1px solid transparent;top:0;height:750px;max-width:890px;margin-left:0;margin-top:0;background-color:transparent;'> </div>  
+	  
+	  <div class="col-sm-2" id='canvases' >
+	  <canvas id="myCanvas" width="300px" height="100px" style="position:absolute;border:0px solid #000000;background-color:transparent;">
+	  </canvas>
+	  	 
+	  	   
+		</div>	 
+			
+
+	</div> 
+		
+	<!--	<div class="col-sm-3" > <button id='sendbutton' onclick='javascript:send_inputs();'> Click to send inputs</button> <br><br><br></div> 
+	-->
+	<div class="row" > 
+    
+	 <div class="col-sm-10" id="chart" style='min-height:400px;background-color:transparent;'> </div>
+	 <div class="col-sm-2" id='inputstream' style='display:none;font-size:0.8em;text-align:left;'></div> 
+	 </div> 
+ 		
+  
+</body>	
+	  
+</html>

@@ -1,0 +1,65 @@
+ 
+
+.row{
+		width:100%;
+		background-color:#fefefe;
+	  
+	}
+
+.row{
+	box-shadow: 10px 10px 8px #888888;
+}
+
+h1{
+	font-family: 'Roboto Slab', serif;
+	font-size:1.2em;
+}
+h2{
+	font-family: 'Roboto Slab', serif;
+	font-size:1.2em;
+	font-weight:normal;
+	color:#077fab;
+	margin-bottom: 12px;
+	margin-top: 92px;
+	
+}
+
+
+h3{
+	font-family: 'Roboto Slab', serif; 
+	font-weight:normal;
+	font-size:1.05em;
+	line-height: 3em;
+	color:#9e1910;
+	margin-top: 12px;
+}
+
+body{
+	font-family: 'Nunito Sans', sans-serif;
+	color:#333333;
+
+}
+
+container{
+	//width:90%;
+}
+
+h4{
+	font-family: 'Nunito Sans', sans-serif;
+	color:#333333;
+	font-size:0.9em; 
+}
+
+
+  
+blockquote {
+    font-style: normal;
+    border-left: solid 5px red;
+    padding-left: 2.5%;
+    margin-left: 20px;
+    font-family:  Georgia, serif,Merriweather;
+    font-size:1 em;
+    background-color:#FFFFdd;
+    padding:9px;
+    
+}

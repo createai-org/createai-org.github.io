@@ -1,0 +1,302 @@
+<html>
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  > 
+	<link rel="stylesheet" href="aibook.css"  > 
+  
+    <script src="jquery-3.3.1.slim.min.js"  ></script>
+    <script src="popper.min.js"  ></script>
+    <script src="bootstrap.min.js"   ></script>
+  
+    <script src="jquery.min.js"></script> 
+    
+   <link href="https://fonts.googleapis.com/css?family=Faustina&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet"/>
+</head>
+<style>
+   
+	
+	
+	body{
+		font-family: 'Nunito Sans', sans-serif;
+		color:#333333; 
+	}
+
+	 
+
+</style>
+
+
+
+ 
+<body style='background-color:white;font-family:Nunito Sans;background-color:#aeaeae;'>
+ 
+<div class="container p-5"> 
+    <div class="row" >  
+	<br>
+	<br> 
+	<br> 
+			</div> 
+	
+	 <div class="row" >  
+		    
+		<div class="col-sm"   >  
+			<a href='part5.html'><< Prev: 5. Connectome</a>
+		 </div>
+		 
+		 <div class="col-sm-2"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-5"   >  
+			<a href='part7.html'>>> Next: 7. Simulation of an Artificial Life Form</a>
+		 </div> 
+	</div>
+	
+	   
+	
+	<div class="row p-5"   >  
+		<div class="col-sm-12"  > 
+			<center> 
+			<h1 style='padding:18px;background-color:#eaeaae'>Part 6 : &nbsp; Designing an Artificial Life Form : Considerations </h1>
+			</center>
+			
+			<br>				
+			 
+			<dd>
+
+			<h3  id="section6.1">6.1. Sensory types	</h3>
+				<dd>
+				  The lifeform should have sensors to detect stimuli types that are necessary for its survival in that specific environment.
+				More the types of relevant stimuli, the more feedback it can get from environment/internal sensors, increasing the chances of its longer survival.
+			</dd>  
+<br>
+			<h3 id="section6.2">6.2. Motor actions	</h3>
+				<dd>
+					 
+				The lifeform should be able to interact with  its environment and influence  its environment  through 'motor actions'. (eg: locomotion)
+					 
+			</dd>  
+			<br>	 
+			<h3  id="section6.3">6.3. Embodiment	</h3>
+			<dd>
+				 
+					
+			The lifeform should be <i>'embodied'</i> , ie., should have a perceived physical form.
+			Such a perceived physical form   makes it possible to create a sense of 'self' ,by demarcating self-generated stimuli and environmental stimuli.
+				<p></p>
+			The interaction of a lifeform with its environment through motor actions creates a change in sensory stimuli.(Eg: movement in a specific direction could create a change in visual input)
+			The lifeform then learns the association between the executed 'motor action' and the resultant change in sensory stimuli from the environment.<sup><a href='part8.html#r4'>[4]</a></sup>
+				<p></p>
+				When a lifeform starts its 'virtual life' in a new environment, it could execute all possible motor actions at random (motor babbling) to create the associations between the motor-actions and the resultant change in stimuli.
+			Without embodiment, this association-creation is not possible.
+
+			For example, in cases of lifeforms with limbs, the motor-action of moving a limb also generates proprioception sensory stimuli, which is internal stimuli that encodes relative position of a limb with respect to the body. 
+
+			</dd> 
+<br>
+			<h3  id="section6.4">6.4. Reflex actions	</h3>
+			<dd>
+				 
+				Innate connections are required for incorporating 'primitive reflexes' like food-seeking and danger-avoidance. 
+				<p/> 
+					Such primitive reflexes are required for initial survival until more complex behaviour is learnt using environmental/internal feedback.
+				Some reflex actions can be made to fade over time (eg: fading of suckling , grasping reflexes in humans) after associations are formed to generate the equivalent  voluntary behaviour
+
+			</dd>  
+<br>
+			<h3  id="section6.5">6.5. Autonomous Subsystems </h3>
+			<dd> 
+				An Artificial Lifeform should be made to feel 'virtual pain' in order to shape its behaviour. 
+				To aid its survival, certain critical motor-actions should not be controlled directly by the Artificial LifeForm.(eg: actions equivalent to breathing,digestion)
+				To achieve this, <i>autonomous subsystems</i> should be incorporated in the Artificial Lifeform's design.
+			<p/>
+				Taking a Human analogy, the  <i>"human digestive system" </i>  is an autonomous subsystem. 
+				When stale food is ingested, the digestive system triggers sickness and causes pain, discouraging future ingestion of stale food.
+			 
+				The <i>human-digestive-system</i> is <i>autonomous</i> in that it cannot be forced <i>not</i> to cause pain. 
+				It has its own independent sensors,and an independent ability to trigger pain neurons.
+			<p/>
+				The autonomous subsystem should therefore independent of free will and powerful enough to trigger pain or satiation, thus shaping behaviour. 
+				Such autonomous subsystems enable implementation of motivation, positive reinforcement and negative reinforcement.
+			<p/>
+				An Artificial Lifeform should therefore have several autonomous subsystems that trigger pain when undesirable stimuli is detected by the subsystem 
+				(eg: detecting proximity to fire)
+
+				The pain should be inflicted on the Artificial Lifeform ONLY by an autonomous subsystem within the Artificial Lifeform.
+				Inflicting and stopping pain should be possible only by the Artificial Lifeform’s autonomous subsystem and not by the free-will of Artificial Lifeform.
+				Similarly, triggering an "urge" and signalling "satiation" of the urge should be done only by the Artificial Lifeform’s autonomous subsystem and not by the free-will of Artificial Lifeform.
+			<p/>
+				<span style='font-weight:bold;font-size:0.9em;'>Such autonomous subsystems would help to :</span>
+			<ul>
+
+			<li>  <i style='font-weight:bold;font-size:0.9em;'>Trigger quick reflex actions on certain stimuli</i> , bypassing free-will (eg: analogous to human spinal reflex of pulling back arm on touching a flame)</li>
+			<li> <i style='font-weight:bold;font-size:0.9em;'> Ensure continuous activation of highly critical motor sequences :</i> 
+			It is important that some motor-actions be initiated involuntarily . 
+				For example, it is dangerous if life-critical actions such as breathing have to be initiated voluntarily. (Eg: <a href='https://en.wikipedia.org/wiki/Central_hypoventilation_syndrome'>Forgetting to breathe </a>.)
+				 Other bodily functions such as digestion, involves a sequence of actions ( acidity increase in stomach, periodic contraction of stomach muscles, etc.) which should not be directly controllable by the lifeform's will. </li>
+			 
+			</ul>
+
+			 When an Artificial Lifeform performs an undesirable motor action,  the undesirable action will be detected by one of its autonomous subsystems , 
+			 and pain is delivered to the Artificial Lifeform,  thus dissuading similar undesirable behaviour in the future.
+			 <p/>
+			Various <i>types of 'virtual pain'</i> could be created, corresponding to different types of negative stimuli  ( hunger, thirst, physical pressure). 
+			Various <i>levels of pain</i> could be created, because  an incremental scale of pain could stop undesirable behaviour at earlier stages.
+
+			</dd>  
+
+
+<br>
+
+			 <h3 id="section6.6">6.6. Inflicting pain on an Artificial Lifeform </h3>
+			<dd>
+				'Virtual pain' can be designed to cause the following changes to the Artificial Lifeform  : <sup><a href='part8.html#r5'>[5]</a></sup>
+			<ul>
+
+				<li>Pain could inhibit the motor-action neurons, reducing its responsiveness</li>
+				<li>Pain could prevent or intermittently block the flow of sensory data from the environment</li> 
+				<li>Pain could trigger specific reflex actions, preventing other intended motor actions(eg: pain neurons trigger loss of balance maintenance, forcing robotic AI to bend/fall)</li>
+				<li>Pain could impair involuntary actions of its subsystems (eg: impair the equivalent of digestion)</li>
+				<li>Higher levels of pain could cause shutdown of all sensory information flow from environment</li>
+				<li>Higher levels of pain could cause shutdown of all motor action capabilities,effectively putting it in a "machine coma" </li>
+				
+				The most important factor to note is that the Artificial Lifeform should associate the pain with its recently executed undesirable motor action.
+				 This association of an undesirable action with 'virtual' pain will discourage the Artificial Lifeform from performing the undesirable action in the future.
+				
+			</ul>	
+				
+			</dd>  
+<br>
+			<h3  id="section6.7">6.7. Creating a motivation system</h3>
+			<dd>
+
+			Research has shown that non-satiation of an urge (eg:hunger) encourages more activity in pursuit to satisfy the urge.<sup><a href='part8.html#r6'>[6]</a></sup>
+			 <p/>
+			An Artificial Lifeform can be designed with neural circuits that execute various combinations of possible motor-actions until it finds the means to satiate its urge. 
+			A need (food) creates an unsatiated feeling(hunger), which triggers discomfort(pain),which in-turn triggers some sort of action. 
+			<p/>
+			Therefore, when the Artificial Lifeform performs a desired set of motor action sequences (eg: eats virtual food), 
+			its own autonomous subsystem (eg: digestive system equivalent) detects the virtual food, 
+			inhibits the hunger/pain neurons, thus providing satiation.
+			<p/>
+			By introducing different types of needs (food,water) and corresponding feelings(hunger,thirst), the Artificial Lifeform  can  :
+			<ul>
+				<li>  be motivated to explore its environment </li>
+				<li> obtain positive feedback/reward when it performs a desirable action </li>
+			<li> obtain negative reinforcement(pain) when it performs an undesirable action.</li>
+			</ul>  
+
+			Using  such a motivation system and feedback system from its autonomous subsystems, its behaviour can be shaped.
+
+			  </dd>  
+			 
+			 
+			 
+			 
+			 
+			 
+			 <div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+				 <span style='font-size:0.7em;text-align:center;padding:5px;color:darkred'>Interactive examples</span>
+		
+			 
+				   <center> 	
+				  <br><br><br><b>A plausible motivation circuit :<u> with Positive reinforcement</u></b>
+				  <br>
+						<div style='padding:9px;font-size:0.8em;text-align:left;'>	  <br> In this example :
+							 <br>1.&nbsp; <b>neuron U</b> is the "<b>urge</b>" neuron triggered by an autonomous subsystem (eg: triggered by Hunger)
+							 <br>2.&nbsp; <b>neuron S</b> is the "<b>satiation</b>" neuron ,triggered by an autonomous subsystem, when the urge is satisfied(eg: signal that stomach is full)
+							 <br>3.&nbsp; <b>neuron C1</b> and   <b>neuron C2</b> are the two possible voluntary motor actions that the Artificial Lifeform has the option to trigger.
+							 <br>4.&nbsp; <b>neuron A</b> is the decision neuron, which on firing, will cause either <b>neuron C1</b> or <b>neuron C2</b> to fire, with equal probability. 
+							
+							 <div style='padding-left:23px;'>This is made possible by a fluctuating connection from U to A, which provides input signal of a random intensity to A,
+							  and the random signal is passed on to B1 and B2 which have different thresholds: A weak signal to A causes only B1 and C1 to fire ; a strong signal to A causes B1,B2,C2 to fire .
+							 </div>
+							 5.&nbsp; Let us say that, in this case, <b>neuron C2</b> is the correct motor action neuron to be initiated for satiating the urge.
+							  <br>6.&nbsp; When <b>neuron U</b> fires, followed by <b>neuron A</b>, either C1 or C2 will be triggered.
+							  <br>7.&nbsp; In the scenario where <b>neuron C2</b> fires, a satiation signal <b>neuron S</b> is activated by the autonomous subsystem.
+							  <br>8.&nbsp; As soon as the satiation neuron <b>S</b> fires, it creates a new dynamic connection in the recently activated pathway A=>B2=>C2
+							  <br>9.&nbsp; The next time A fires, the dynamic connections A=>B2 and B2=>C2 increase the likelihood of C2 firing, and the "reward" pathway A=>B2=>C2 is strengthened and used everytime for urge satiation.
+							  
+						  
+						
+						 </div>	  
+				  	 <span style='font-size:0.7em;float:right;'><a target="_blank" href='connectome_003.html'><img src='newwindow.png'/></a></span> 
+						 <iframe   src='connectome_003.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no"  width=100% height=680   ></iframe> 
+					   <br><br><br>
+					   <hr> 
+						 
+					<br>
+					<b>A plausible motivation circuit : <u>with Negative reinforcement</u></b>
+						  <br>
+							<div style='padding:9px;font-size:0.8em;text-align:left;'>	  <br> In this example :
+								 <br>1.&nbsp; <b>neuron U</b> is the "<b>urge</b>" neuron triggered by an autonomous subsystem (eg: triggered by Hunger)
+								 <br>2.&nbsp; <b>neuron P</b> is the "<b>pain</b>" neuron ,triggered by an autonomous subsystem, when an undesirable motor action is executed. (eg: proximity to heat)
+								 <br>3.&nbsp; <b>neuron C1</b> and   <b>neuron C2</b> are the two possible voluntary motor actions that the Artificial Lifeform has the option to trigger.
+								 <br>4.&nbsp; <b>neuron A</b> is the decision neuron, which on firing, will cause either <b>neuron C1</b> or <b>neuron C2</b> to fire, with equal probability. 
+								
+								 <div style='padding-left:23px;'>This is made possible by a fluctuating connection from U to A, which provides input signal of a random intensity to A,
+								  and the random signal is passed on to B1 and B2 which have different thresholds: A weak signal to A causes only B1 and C1 to fire ; a strong signal to  A causes B1,B2,C2 to fire .
+								 </div>
+								 5.&nbsp; Let us say that, in this case, <b>neuron C2</b> is a neuron that triggers an undesirable motor action .
+								  <br>6.&nbsp; When <b>neuron U</b> fires, followed by <b>neuron A</b>, either C1 or C2 will be triggered.
+								  <br>7.&nbsp; In the scenario where <b>neuron C2</b> fires, a pain signal <b>neuron P</b> is activated by the autonomous subsystem.
+								  <br>8.&nbsp; As soon as the pain neuron <b>P</b> fires, it creates a new <b>inhibitory</b> dynamic connection in the recently activated pathway A=>B2=>C2
+								  <br>9.&nbsp; The next time A fires, the inhibitory dynamic connections A=>B2 and B2=>C2 decrease the likelihood of C2 firing, and the alternative pathway A=>B1=>C1 is  used.
+								  
+							  
+							
+							 </div>						
+					  <span style='font-size:0.7em;float:right;'><a target="_blank" href='connectome_004.html'><img src='newwindow.png'/></a></span> 
+				   <iframe   src='connectome_004.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=680 ></iframe> 
+				
+				   </center>
+		 
+		 </div>
+		 
+		 
+
+			
+		</div>
+    </div>
+    
+    
+     <div class="row" >  
+		    
+		<div class="col-sm-5"   >  
+			<a href='part5.html'><< Prev: 5. Connectome</a>
+		 </div>
+		 
+		 <div class="col-sm-2"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-5"   >  
+			<a href='part7.html'>>> Next: 7. Simulation of an Artificial Life Form</a>
+		 </div>
+	   
+				<br> 
+				<br>
+				<br> 
+				<br>
+	     
+	</div>
+	
+     
+	
+    	 
+	
+</div>
+ 		
+  
+</body>	
+	  
+</html>

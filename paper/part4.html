@@ -1,0 +1,520 @@
+<html>
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  > 
+	<link rel="stylesheet" href="aibook.css"  > 
+  
+    <script src="jquery-3.3.1.slim.min.js"  ></script>
+    <script src="popper.min.js"  ></script>
+    <script src="bootstrap.min.js"   ></script>
+  
+    <script src="jquery.min.js"></script> 
+    
+   <link href="https://fonts.googleapis.com/css?family=Faustina&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap" rel="stylesheet"/>
+</head>
+<style>
+     
+	
+	body{
+		font-family: 'Nunito Sans', sans-serif;
+		color:#333333; 
+	}
+
+	 
+
+</style>
+
+
+
+ 
+<body style='background-color:white;font-family:Nunito Sans;background-color:#aeaeae;'>
+ 
+<div class="container p-5"> 
+    <div class="row" >  
+	<br>
+	<br> 
+	<br> 
+			</div> 
+	
+	 <div class="row" >  
+		    
+		<div class="col-sm-5"   >  
+			<a href='part3.html'><< Prev: 3. Neural circuits with specific functions</a>
+		 </div>
+		 
+		 <div class="col-sm-2"  > 
+			 <a href='index.html'>Index</a>
+		 </div>  
+		 
+		
+		 <div class="col-sm-5"   >  
+			<a href='part5.html'>>> Next: 5. Connectome</a>
+		 </div>
+	</div>
+	
+	   
+	
+	<div class="row p-5"   >  
+		<div class="col-sm-12"  > 
+			<center> 
+			<h1 style='padding:18px;background-color:#eaeaae'>Part 4 : &nbsp; Encoding stimuli to Neural code </h1>
+			</center>
+			
+			<br>				
+			 
+			<dd>
+
+							
+					 <h3  id="section4.1">4.1.&nbsp;&nbsp;Factors to consider in Sensory Stimuli Encoding</h3>
+					<dd>
+					<p> 
+					<div style='padding-left:22px;'>
+					1. &nbsp; &nbsp; <b>Mapping :&nbsp;&nbsp;</b>Sensory neurons of the same type have a common pathway and terminate in the same region of the brain.
+					(eg: Sound stimuli signals are sent to auditory cortex.) Neighbouring sensory neurons of the same type are mapped to corresponding neighbouring neurons in the brain region.
+					In some cases, afferent neurons that carry signal to the brain will perform lateral inhibition/temporal sharpening to increase the contrast of the signal over space and time, prior to sending the signal to the brain.
+					 
+					<br>	<br> 
+					2. &nbsp; &nbsp; 
+						<b>Intensity :&nbsp;&nbsp;</b>Each incoming sensory stimulus signal has a corresponding <i>'intensity'</i> property.
+					
+						<br> <br> 
+						&nbsp; &nbsp;&nbsp; For example :<br> 
+						<br> 
+						<div width=60% style='padding-left:122px;'>
+							<table style='border:1px solid gray;cellpadding:12px;'>
+						<tr style='background-color:#eaeaea;border-bottom:1px solid lightgray;'>
+						<td style='padding:7px;width:40%;border-right:1px solid black;'>Sensory type</td>
+						<td style='padding:7px;width:60%;'>Corresponding Intensity variable</td>
+						</tr>
+						<tr style='background-color:lightyellow;border-bottom:1px solid lightgray;'>
+						<td  style="padding:7px;border-right:1px solid black;">Vision</td>
+						<td style="padding:7px;">Brightness of light </td>
+						</tr>
+						
+						<tr style='background-color:lightyellow;border-bottom:1px solid lightgray;'>
+						<td style="padding:7px;border-right:1px solid black;">Hearing</td>
+						<td style="padding:7px;">Loudness of sound</td>
+						</tr>
+						
+						<tr style='background-color:lightyellow;border-bottom:1px solid lightgray;'>
+						<td style="padding:7px;border-right:1px solid black;">Tactile</td>
+						<td style="padding:7px;">Pressure of touch</td>
+						</tr>
+						
+						<tr style='background-color:lightyellow;'>
+						<td style="padding:7px;border-right:1px solid black;">Smell / Taste</td>
+						<td style="padding:7px;">Concentration of the chemical</td>
+						</tr>
+						
+						</table>
+						</div>
+						
+					</div>	 	
+					
+					</p>
+					</dd>
+					
+					<br><br>
+				<h3  id="section4.2">4.2. &nbsp;&nbsp;Stimuli encoding  : Objectives	</h3>
+					<dd>
+					<p>
+						Sensory encoding involves activating specific neurons based on specific input stimuli. 
+						The same input stimuli should activate the same set of neurons everytime.
+					</p>
+					<p>	The process of encoding a sensory stimulus should facilitate the following :
+					<ul>
+						<li>Map stimuli of the same type to the corresponding neural region.</li>
+						<li>Estimate the approximate intensity of the incoming stimulus within a set range</li>
+						<li>Determine the specific sensory neuron's  activation state (ON or OFF state) </li>
+						<li>Detect changes in the sensory neuron's activation state </li>
+						<li>Perform lateral inhibition and temporal sharpening where applicable</li> 
+						<li>Determine the duration of the current activation (to enable attention/habituation)</li>
+						<li>Detect spatial/temporal patterns in incoming stimulus where applicable</li>
+						
+					</ul>
+					</p>
+					</dd>
+					<br><br>
+				<h3  id="section4.3">4.3. &nbsp;&nbsp;Proposed encoding model	</h3>
+				<dd>
+				<p>
+				<ul>
+				<li>In this encoding model, <b>every input signal to the sensory neuron is just a <u>scalar</u></b>, ie., the intensity of the stimulus.</li>
+				<li>Various downstream neural circuits are involved in encoding, so the Stimuli encoding objectives listed above are achieved </li>
+				<li>Examples of encoding are illustrated below. </li>
+				  
+				</ul>
+				</p>
+				</dd>
+
+				
+				  
+				 
+				  <br><br><br>
+				 <h3  id="section4.4">4.4.&nbsp;&nbsp; Encoding scalar value : Intensity estimation	</h3>
+				 <div style='padding:12px;background-color:#ffaaaa;font-size:1em;width:100%;'>
+					 
+					 <br> <b><u>A Neural circuit for signal Intensity estimation </u> </b>
+					 <br> The strength/intensity of the input signal can be estimated within two timesteps using this circuit.
+					 <br> Step 1: Determine the minimum and maximum possible values of the incoming signal's intensity
+					 <br> Step 2: Divide the range into a number of intervals ,depending on the precision required.
+					 <br> Step 3: In the second layer (B1,B2..) set thresholds that match the starting values of each interval.
+					 <br> Step 4: Inhibitory connections are added : B2 inhibits C1 , B3 inhibits C2. 
+					 <br>   
+	<br>  <b>Example :</b> 
+	<br>  &bull; &nbsp; Let the input signal to A be a scalar with value between 1 and 30  
+	<br>  &bull; &nbsp; Let the number of intervals chosen = 3  , so the range is split into three chunks (1..9), (10...19), (20...30)
+	<br>  &bull; &nbsp; The thresholds of the second layer Bx are chosen to be the first number of each interval chunks.
+	<br>  &bull; &nbsp; i.e., Thresholds <i>θ<sub>B1</sub></i> = 1 ; <i>θ<sub>B2</sub></i> = 10 ; <i>θ<sub>B3</sub></i> = 20 ; other thresholds = 1 
+	<br>&bull; &nbsp;&nbsp;If input intensity to A  <i>i<sub>A</sub></i>   is greater than zero, one of the C<sub>x</sub> neurons will fire based on its intensity i.e,  
+	<br>
+	<br>
+	<center><table style='padding:8px;left:4px;border:1px solid black;width:40%;'>
+	<tr style='border:1px solid black;background-color:#ff7777'>
+		<td style='padding:2px;border:1px solid black;border-right:1px solid black;'>&nbsp;&nbsp;Input to A at time (t)</td>
+		<td style='padding:7px;border:1px solid black;'>&nbsp;&nbsp;Result at time (t+2)</td>
+	</tr> 
+	
+	<tr>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'>i<sub>A</sub> = { 1,2,...,9} </td>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'> <i>C1</i> fires  @ (t+2)   </td>
+	</tr>
+	<tr>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'>i<sub>A</sub> = {10,11,...19} </td>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'> <i>C2</i> fires  @ (t+2)   </td>
+	</tr>
+	<tr>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'>i<sub>A</sub> >=20 </td>
+		<td style='padding:7px;border:1px solid black;border-right:1px solid black;'> <i>C3</i> fires  @ (t+2)   </td>
+	</tr>
+	</table>
+	</center> 
+	  <br>
+	 <span style='font-size:0.7em;float:right;'><a target="_blank" href='scalar_000_intensity.html'><img src='newwindow.png'/></a></span> 
+				 <iframe   src='scalar_000_intensity.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=990 ></iframe> 
+				 </div>
+				 
+				  <br><br><br>
+				 <h3  id="section4.5">4.5.&nbsp;&nbsp; Encoding a grayscale pixel input : (with change detection )	</h3>
+				 <div style='padding:5px;background-color:#ffaaaa;font-size:1em;width:100%;font-size:0.9em;'>
+				 
+				  <br>
+					 
+					 <span style='font-size:1.2em;'><b>To run this demo, place mouse-pointer  over the grayscale gradient canvas below.</b></span>
+					 <br> This will send the corresponding pixel's grayscale intensity value to the the sensor neuron A1 
+					 <br>
+					 <br>
+					 <b>Description:</b>
+					 <br>
+					 &bull;&nbsp;
+					 The sensory neuron A1  gets the input intensity value that is between 0 and 255 .
+					 <br>
+					 &bull;&nbsp;
+					 The intensity of the input is grouped to be in one of the five ranges : 
+					 ( 1 to 49 ),  ( 50 to 99 ), (100 to 149 ), (150 to 200), ( 200 to 255)	 
+					
+					 <br>
+					 &bull;&nbsp;An intensity estimation circuit is created using B1,  C* and D_* neurons by setting these thresholds :    θ<sub>C1</sub> = 1 ;  θ<sub>C2</sub> = 50 ;  θ<sub>C3</sub> = 100;  θ<sub>C4</sub> = 150;  θ<sub>C5</sub> = 200;
+					 
+					  <br>
+					 &bull;&nbsp; Neuron E is the 'ON state' detection neuron,which fires at time (t+4) when input > 0 at time t. 
+					  <br>
+					 &bull;&nbsp; Similarly, neuron F is the 'OFF state' detection neuron,which fires at time (t+4) when input = 0 at time t. This uses the "Inverse neuron" circuit shown in the earlier Section 3.5.
+					 <br>
+					 &bull;&nbsp; Temporal summation connections (t+1,t+2,t+3) exist from E to G and F to H respectively, wherein G and H accumulate inputs over three timesteps.
+					 <br>
+					 &bull;&nbsp; Further downstream,  intensity estimation circuits exist for estimating the values in G and H
+					 
+					 
+					  <br> 
+					 
+					 
+					 
+					 <br>
+					 <center><table style='font-size:0.95em;padding:8px;left:4px;border:1px solid black;width:60%;'>
+	<tr style='font-weight:bold;font-size:1em;border:1px solid black;background-color:#ff7777'>
+		<td style='padding:2px;border:1px solid black;border-right:1px solid black;'>&nbsp;&nbsp;Scenario at time (t) </td>
+		<td style='padding:1px;border:1px solid black;'>&nbsp;&nbsp;Result</td>
+	</tr> 
+	
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 = { 1,2,...,49} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>D1</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1   = { 50,51,..,99} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>D2</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1   = {100,101,,...,149} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>D3</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1   = {150,151,...,199} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>D4</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 = { 200 and above} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>D5</b> fires  @ time  (t+3)   </td>
+	</tr> 
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 > 0 </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>E</b> fires  @ time  (t+4)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 is 0 </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>F</b> fires  @ time  (t+4)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 changes from 0 to positive  </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>K1</b> fires  @ time  (t+7)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 is consecutively positive thrice or more </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>K3</b> fires  @ time  (t+7)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 changes from  positive to zero </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>L1</b> fires  @ time  (t+7)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Input to A1 is consecutively zero thrice or more </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'>&nbsp;&nbsp; <b>L3</b> fires  @ time  (t+7)   </td>
+	</tr>
+		</table>
+	</center> 
+	  <br> 
+	  
+	  
+					  </div>
+				 
+				 
+				  <span style='font-size:0.7em;float:right;'><a target="_blank" href='scalar_001_onepixel.html'><img src='newwindow.png'/></a></span> 
+				 <iframe   src='scalar_001_onepixel.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=1220 ></iframe> 
+				 <br> <br> <br> <br>
+				 </div>
+				 
+				  <br><br><br><br> 
+				 <h3  id="section4.6">4.6.&nbsp;&nbsp; Encoding an RGB pixel input  	</h3>
+				 <div style='padding:5px;font-size:1em;width:100%;font-size:0.9em;background-color:#ffaaaa;'>
+					 
+					
+					
+					
+					<br>
+					 
+					 <span style='font-size:1.2em;'><b>To run this demo, place mouse-pointer over the picture below.</b></span>
+					 <br> This will send the corresponding pixel's RGB intensity value to the three sensors (R_A1 neuron for red, G_A1 neuron for green input, B_A1 neuron for blue input)
+					 <br>
+					 <br>
+					 <br>
+					 <b>Description:</b>
+					 <br>
+					 &bull;&nbsp;
+					  Each of the sensory neurons (R_A1 , G_A1,  B_A1) get an input intensity value between 0 and 255 .
+					 <br>
+					 &bull;&nbsp;
+					 The intensity of each input is grouped to be in one of the three ranges :
+					 ( 1 to 85 ),  ( 86 to 170 ),   ( 171 to 255)	 
+					
+					 <br>
+					 &bull;&nbsp;The intensity estimation circuit exists for each input, (using *_C* and *_D_* neurons); wherein the intensity of the input is determined to be in one of the three ranges.
+					 
+					  <br>
+					 &bull;&nbsp; Neuron E is the 'ON state' detection neuron,which fires at time (t+4) when input > 0 at time t. 
+					  <br>
+					 &bull;&nbsp; Similarly, neuron F is the 'OFF state' detection neuron,which fires at time (t+4) when input = 0 at time t. 
+					 This uses the "Inverse neuron" circuit shown in the earlier Section 3.5.
+					 
+					 
+					 <br>
+					 &bull;&nbsp;Eg: if the input red value to R_A1 >= 1,   R_E will fire. (at t+4). Similar behaviour will be seen in the G_* (green) and B_* (blue) circuits.
+					 
+					   
+					
+					 <br>
+					 
+	<center><table style='font-size:0.95em;padding:8px;left:4px;border:1px solid black;width:80%;'>
+	<tr style='font-weight:bold;font-size:1em;border:1px solid black;background-color:#ff7777'>
+		<td style='padding:2px;border:1px solid black;border-right:1px solid black;'>&nbsp;&nbsp;Scenario at time (t) </td>
+		<td style='padding:1px;border:1px solid black;'>&nbsp;&nbsp;Result</td>
+	</tr> 
+	
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; RED Input to R_A1 = { 1,2,...,85} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>R_D1</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; RED Input to R_A1   = {86,87,,..,170} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>R_D2</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; RED Input to R_A1   = {171 and above} </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>R_D3</b> fires  @ time  (t+3)   </td>
+	</tr>
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Colour input is white ie., ( R_A1=255, G_A1=255, B_A1=255 ) </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>R_D3, G_D3, B_D3</b> fire @ time  (t+3)   </td>
+	</tr> 
+	<tr>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; Colour input is black ie., ( R_A1=0, G_A1=0, B_A1=0 ) </td>
+		<td style='padding:1px;border:1px solid black;border-right:1px solid black;'> &nbsp;&nbsp; <b>R_F, G_F, B_F</b> fire @ time  (t+4)   </td>
+	</tr> 
+		</table>
+	</center> 				 
+					  
+					 
+					  
+					   
+					 
+					 <br>
+					 <br>
+					  <span style='font-size:0.7em;float:right;'><a target="_blank" href='scalar_002_rgbpixel.html'><img src='newwindow.png'/></a></span> 
+				 <iframe   src='scalar_002_rgbpixel.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=610 ></iframe> 
+				  
+					 </div>
+				 &nbsp;
+				  <br> 
+				  
+				  	 <br>
+					 <br>
+					 <h3   id="section4.7" style='margin-top: 82px;'>4.7.&nbsp;&nbsp; Encoding a one-dimensional array of scalars (with lateral inhibition)	</h3>
+					  <div style='padding:5px;background-color:#ffaaaa;font-size:0.9em;width:100%;'>
+						  
+						  	
+					<br>
+					 
+					 <span style='font-size:1.2em;'><b>To run this demo, place mouse-pointer over the grayscale gradient below.</b></span>
+					 <br> This will send the corresponding set of 5  neighbouring-pixels' grayscale intensity values to the neurons 1_A1, 2_A1, 3_A1, 4_A1, 5_A1.   
+					 <br>
+					 <br>
+					 <br>
+					 <b>Description:</b>
+					 <br>
+					 &bull;&nbsp;
+					  Consider a vision sensor with an one-dimensional strip of five light-sensors.
+					 <br>
+					 &bull;&nbsp;
+					 Each sensor gets an input grayscale intensity value between 0 and 255 .
+					
+					 <br>
+					 &bull;&nbsp;For each sensor input(*_A1), an intensity estimation circuit exists similar to Section 4.5 above, but with the range split into three groups( *_D1, *_D2, *_D3) instead of five.
+					 
+					  <br>
+					 &bull;&nbsp;In stimuli such as vision or touch, lateral inhibition is present , wherein neighbouring neurons inhibit each other's output to sharpen the contrast in the signal(see <a href='https://en.wikipedia.org/wiki/Mach_bands'>Mach Bands</a>) 
+					  <br>
+					 &bull;&nbsp;In this circuit below, such lateral inhibition is achieved by creating inhibitory connections (with weight = -0.2) from each of the *_B1 neurons to neighbouring *_B1 neurons.
+					 
+					 
+					 
+					 <br>
+					 &bull;&nbsp;For example, it can be seen that ,when sending all inputs as 255 (by mouse-hovering over the white area of the canvas), the *_B1 neurons fire with a less intense output signal ( less than 255).
+					  <br>
+					 &bull;&nbsp;In a comprehensive visual processing neural circuit, there will be a two-dimensional array of sensors instead of such an one-dimensional array, with corresponding lateral inhibitions to neighbouring neurons in two dimensions.
+					   <br><br>
+						  
+						   <span style='font-size:0.7em;float:right;'><a target="_blank" href='scalar_003_oneD_array.html'><img src='newwindow.png'/></a></span> 
+				 <iframe   src='scalar_003_oneD_array.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=670 ></iframe> 
+				 
+				 </div>
+				  <br><br><br>
+				  
+				  
+				  
+				  
+				<h3  id="section4.8" style='margin-top: 82px;'>4.8.&nbsp;&nbsp; Encoding sound </h3>
+				  <div style='padding:5px;background-color:#ffaaaa;font-size:0.9em;width:100%;'>
+				
+				   
+				    <br>
+					 <br>
+					  <b>Sound encoding :</b>
+					 <br>
+					 &bull;&nbsp;
+					  Sound is composed of superposition of many frequencies, and each incoming frequency has an intensity factor(loudness).This concept is best visualized in a <a href='https://en.wikipedia.org/wiki/Spectrogram'>spectrogram</a>.
+					 <br>
+					 &bull;&nbsp;
+					 Sound sensation can be thought of as a continuous stream of one-dimensional-array input, wherein each element corresponds to the loudness in one particular frequency.
+					 <br>
+					 &bull;&nbsp;
+					 Encoding of sound in such a way would also require Lateral inhibition to be enabled in the encoding neural circuit, similar to <a href='#section4.5'>section 4.5.</a> above. 
+					 
+					 <br> <br> 
+					 <b>In this example :</b> 
+					  <br>
+					 &bull;&nbsp;
+					 In this example, just one frequency sensor (tuned to 6000Hz) is illustrated instead of an array of frequency sensors.
+					 <br>
+					 &bull;&nbsp;
+					 The loudness of sound arriving at 6000Hz is fed into the intensity estimation circuit (6000_A, 6000_B* and 6000_C*).
+					  <br>
+					 &bull;&nbsp; 6000_C3 will fire only if the sound loudness corresponding to 6000Hz is high.
+					<br>
+					 &bull;&nbsp; In this example, the loudness range is set from 0 to 255 ; This range is split into three chunks.
+					  <br>
+					 &bull;&nbsp;Thresholds <i>θ<sub>6000_B1</sub></i> = 1 ; <i>θ<sub>6000_B2</sub></i> = 255/3 ; <i>θ<sub>6000_B3</sub></i> = (255*2)/3 ; other thresholds = 1  . 
+					<br>
+					 &bull;&nbsp;
+					 When a short beep sound is played at 6000Hz by clicking the button, the loudness of the sound  (at 6000Hz)  will cause the 6000_C3 neuron to fire for a short time.
+					<br>
+					 &bull;&nbsp;
+					A full audio encoding circuit (not shown here) will have hundreds of such *A sensors, tuned to proximal frequencies with lateral inhibition connections to neighbouring frequency neurons.
+					<br>
+					 &bull;&nbsp;
+					It should be noted that since we can extract the time-duration of sound in a specific frequency (See neurons K1..K3 in  <a href='part4.html#section4.5'>section 4.5</a>) , complex audio sequences can be detected, which would be useful in speech recognition.
+					 
+					 <br><br>
+					   <span style='font-size:0.7em;float:right;'><a target="_blank" href='scalar_900_sound_landing_page.html'><img src='newwindow.png'/></a></span> 
+				 <iframe   src='scalar_900_sound_landing_page.html' frameBorder="0" style='border:1px solid gray;'  scrolling="no" width=100% height=870 ></iframe> 
+				  
+				 </div>
+
+			
+		</div>
+		
+		
+		<div class="row" >  
+		    
+			<div class="col-sm-5"   >  
+				<a href='part3.html'><< Prev: 3. Neural circuits with specific functions</a>
+			 </div>
+			 
+			 <div class="col-sm-4"  > 
+				&nbsp;&nbsp;&nbsp; <a href='index.html'>Index</a>
+			 </div>  
+			 
+			
+			 <div class="col-sm-3"   >  
+				&nbsp;&nbsp;&nbsp;<a href='part5.html'> >> Next: 5. Connectome</a>
+			 </div>
+		   
+					<br> 
+					<br>
+					<br> 
+					<br>
+			 
+		</div>
+		
+		
+    </div>
+    
+    
+     
+	
+     
+	
+    	 
+	
+</div>
+ 		
+  
+</body>	
+	  
+</html>

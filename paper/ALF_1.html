@@ -1,0 +1,1716 @@
+<html>
+	
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  >
+ 
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+        <script src="jquery-3.3.1.slim.min.js"  ></script> 
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"   ></script>
+   <script type="text/javascript" src="raphael.min.js"></script> 
+     <script src="alfie_brain.js"></script>  
+     
+    <style>
+     td{
+		 padding:3px; 
+		 padding-bottom:4px;
+		 padding-right:4px;
+		 text-align:right; 
+		 border-right-width:1px;
+		 border-right-style:solid;
+		 border-right-color:#cccccc;
+		 	
+		 }
+	.smalltable td{
+		 padding:0px; 
+		 padding-bottom:0px;
+		 padding-right:4px;
+		 text-align:right; 
+		 border-right-width:0px; 
+	}	 
+		 
+    .neuron{
+		font-family:"Courier New", Courier, monospace;
+		font-size:0.8em; 
+		padding:2px;
+		border:1px solid black;	
+		background-color:lightgray;
+		
+	}
+	.flashneuron{
+		background-color:yellow;
+	}
+	
+	.envbutton{
+		font-size:0.8em;
+	}
+	
+	 /*.startbuttons:hover { 
+		 background-color: black; 
+	 }
+		*/ 
+	  
+    </style>
+    
+</head> 
+<script>
+	var idleInterval = null;
+	var idleTime = 0;
+	var paper;
+	var ground;
+	var wallTop, wallBottom, wallLeft, wallRight;
+	var alfie;
+	var visualInputRect;
+	var tmpObject1;
+	var tmpLine;
+	var foodObjects = []; 
+
+
+	var sensoryInfo = {
+		"R": undefined,
+		"G": undefined,
+		"B": undefined,
+		"TOUCH": 0,
+		"FOOD": 0, 
+		"ENERGY": 100 
+	};
+	var epochCount = 0;
+	var alfieBrain;
+	var stableExcitatoryConnections = 0;
+	var stableInhibitoryConnections = 0;
+
+
+
+	function isAlfieCollidingWithWall() {
+		return isCollidingWithWall(alfie);
+	}
+
+	function isCollidingWithWall(objectToCheck) {
+		if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), wallTop.getBBox())) {
+			return true;
+		}
+		if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), wallLeft.getBBox())) {
+			return true;
+		}
+		if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), wallRight.getBBox())) {
+			return true;
+		}
+		if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), wallBottom.getBBox())) {
+			return true;
+		}
+	}
+
+	function isCollidingWithAlfie(objectToCheck) {
+		if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), alfie.getBBox())) {
+			return true;
+		}
+	}
+
+
+  
+ 
+
+	function checkCollisionWithFoodTypeObjects() {
+
+
+		for (var i = 0; i < foodObjects.length; i++) {
+
+			if (Raphael.isBBoxIntersect(alfie.getBBox(), foodObjects[i].getBBox())) {
+				sensoryInfo["FOOD"] += 20; 
+				//console.log("Removing  food from env.");
+				foodObjects[i].remove();
+				foodObjects.splice(i, 1);
+				return;
+			}
+
+		}
+
+ 
+	}
+
+	function isCollidingWithFoodOrAlfie(objectToCheck) {
+
+		if (isCollidingWithWall(objectToCheck)) {
+			return true;
+		}
+		if (isCollidingWithAlfie(objectToCheck)) {
+			return true;
+		}
+
+	 
+		for (var i = 0; i < foodObjects.length; i++) {
+			if (Raphael.isBBoxIntersect(objectToCheck.getBBox(), foodObjects[i].getBBox())) {
+				return true;
+			}
+		}
+ 
+
+	}
+
+
+	function move_forward() {
+
+		alfie.translate(0, -10);
+
+		if (isAlfieCollidingWithWall()  ) {
+
+			alfie.translate(0, 10);
+
+		}
+
+		checkCollisionWithFoodTypeObjects();
+	}
+
+
+
+
+	function rotate_right() {
+		alfie.rotate(90);
+	}
+
+	function digest() {
+		if (sensoryInfo["FOOD"] > 0) {
+			sensoryInfo["FOOD"] -= 10;
+			sensoryInfo["ENERGY"] += 10;
+			$("#infodiv").prepend("Epoch " + epochCount + ": DIGEST action : Energy increased by 10, Food reduced by 10<br>");
+		} else {
+			$("#infodiv").prepend("Epoch " + epochCount + ": DIGEST skipped : Insufficient food<br>");
+		}
+	}
+
+
+	function lightsoff() {
+		ground.attr({
+			fill: "#000000"
+		});
+		sensoryInfo["R"] = 0;
+		sensoryInfo["G"] = 0;
+		sensoryInfo["B"] = 0;
+	}
+
+	function bluelight() {
+		ground.attr({
+			fill: "#0000ff"
+		});
+		sensoryInfo["R"] = 0;
+		sensoryInfo["G"] = 0;
+		sensoryInfo["B"] = 255;
+
+	}
+
+	function whitelight(delaytime) {
+		if (delaytime == undefined) {
+			delaytime = 2000; //millisec
+		}
+		setTimeout(function() {
+				ground.attr({
+					fill: "#ffffff"
+				})
+				sensoryInfo["R"] = 255;
+				sensoryInfo["G"] = 255;
+				sensoryInfo["B"] = 255;
+			},
+			delaytime);
+	}
+
+	function yellowlight() {
+		ground.attr({
+			fill: "#ffff00"
+		});
+
+		sensoryInfo["R"] = 255;
+		sensoryInfo["G"] = 255;
+		sensoryInfo["B"] = 0;
+	}
+
+
+	function placeFoodLeftAndFlashYellowLightSimultaneously() {
+		placeFoodLeft();
+		yellowlight();
+	}
+
+
+	function placeFoodRightAndFlashBlueLightSimultaneously() {
+		placeFoodLeft();
+		bluelight();
+	}
+
+
+	function placeFoodLeft() {
+		var foodSquareSize = 40;
+
+		var food;
+		var alfieBBox = alfie.getBBox();
+		var currentAlfieRotation = parseInt((alfie.matrix.split().rotate) + 360);
+
+		food = paper.rect(alfieBBox.x, alfieBBox.y, foodSquareSize, foodSquareSize);
+		food.rotate(currentAlfieRotation);
+		food.translate(-55, 0);
+		if (isCollidingWithFoodOrAlfie(food)) {
+			console.log("overlap, will not place food on Alfie's left");
+			food.remove();
+		}
+		foodObjects.push(food);
+		// food=> green colour
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+	}
+
+	function placeFoodRight() {
+		var foodSquareSize = 40;
+
+		var food;
+		var alfieBBox = alfie.getBBox();
+		var currentAlfieRotation = parseInt((alfie.matrix.split().rotate) + 360);
+
+		food = paper.rect(alfieBBox.x, alfieBBox.y, foodSquareSize, foodSquareSize);
+		food.rotate(currentAlfieRotation);
+		food.translate(55, 0);
+		if (isCollidingWithFoodOrAlfie(food)) {
+			console.log("overlap, will not place food on Alfie's left");
+			food.remove();
+		}
+		foodObjects.push(food);
+		// food=> green colour
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+	}
+
+	function placeFood() {
+		var foodSquareSize = 40;
+		var randomX = Math.floor(Math.random() * 400) + 1 - foodSquareSize - 10;
+		var randomY = Math.floor(Math.random() * 400) + 1 - foodSquareSize - 10;
+
+		var food;
+		for (var i = 0; i < 10; i++) {
+
+			food = paper.rect(randomX, randomY, foodSquareSize, foodSquareSize);
+			if (isCollidingWithFoodOrAlfie(food)) {
+				console.log("overlap, will recreate food");
+				food.remove();
+			} else {
+				foodObjects.push(food);
+				break;
+			}
+		}
+		// food=> green colour
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+	}
+
+
+ 
+
+
+	function createEnvironment1() {
+		//document.location.reload();
+		foodSquareSize = 40;
+		var food = paper.rect(190, 32, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		var food2 = paper.rect(90, 142, foodSquareSize, foodSquareSize);
+		foodObjects.push(food2);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+		food2.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+
+		food = paper.rect(120, 42, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+
+		food = paper.rect(120, 242, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+
+		food = paper.rect(220, 342, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+
+		food = paper.rect(290, 142, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+		
+		food = paper.rect(220, 242, foodSquareSize, foodSquareSize);
+		foodObjects.push(food);
+		food.attr({
+			fill: "#00ff00",
+			stroke: 'none',
+			title: 'food'
+		});
+
+		// updateSensoryInfo();
+	}
+
+
+ 
+
+
+	function updateSensoryInfo() {
+
+
+
+		updateColorSeenByAlfie();
+
+		updateTouchSensorOnAlfieNose();
+
+		visualInputRect.attr({
+			fill: "rgb(" + sensoryInfo["R"] + "," + sensoryInfo["G"] + "," + sensoryInfo["B"] + ")",
+			stroke: 'none'
+		});
+		$('#redvalue').html(sensoryInfo["R"]);
+		$('#greenvalue').html(sensoryInfo["G"]);
+		$('#bluevalue').html(sensoryInfo["B"]);
+		$('#touchvalue').html(sensoryInfo["TOUCH"]);
+		$('#foodvalue').html(sensoryInfo["FOOD"]); 
+		$('#energyvalue').html(sensoryInfo["ENERGY"]); 
+
+
+		//console.log(currentAlfieRotation);
+		//var currentTransform  = alfie.transform()  ;  
+
+		//
+		//console.log(sensoryInfo);
+	}
+
+
+	function updateTouchSensorOnAlfieNose() {
+		var currentAlfieRotation = parseInt((alfie.matrix.split().rotate) + 360) % 360;
+		//0,90,270 or 360
+
+		var bbox = alfie.getBBox();
+
+		var target;
+		if (currentAlfieRotation == 0) {
+			target = "l 0 -450";
+		}
+		if (currentAlfieRotation == 90) {
+			target = "l  450 0";
+		}
+		if (currentAlfieRotation == 180) {
+			target = "l 0 450";
+		}
+		if (currentAlfieRotation == 270) {
+			target = "l  -450 0";
+		}
+
+		//this is a line from alfie's nose, perpendicular to its body
+		tmpLine = paper.path("M " + parseInt(bbox.x + bbox.width / 2) + "  " + parseInt(bbox.y + bbox.height / 2) + target);
+		//console.log("M "+parseInt(bbox.x + bbox.width/2)     +"  "+  parseInt(bbox.y + bbox.height/2 )+target );
+		tmpLine.attr({
+			fill: "none",
+			stroke: 'none'
+		});
+		var lineLength = tmpLine.getTotalLength();
+
+		var firstCircle, secondCircle;
+
+
+		for (i = 0; i < lineLength; i += 5) {
+			if (firstCircle) {
+				firstCircle.remove();
+			}
+			if (secondCircle) {
+				secondCircle.remove();
+			}
+
+			firstCircle = paper.circle(tmpLine.getPointAtLength(i).x, tmpLine.getPointAtLength(i).y, 2, 2);
+			secondCircle = paper.circle(tmpLine.getPointAtLength(i + 5).x, tmpLine.getPointAtLength(i + 5).y, 2, 2);
+			if (isCollidingWithWall(secondCircle) && isCollidingWithAlfie(firstCircle)) {
+				//console.log("TOUCHING NOSE " + epochCount);
+				sensoryInfo['TOUCH'] = 1;
+
+				if (firstCircle) {
+					firstCircle.remove();
+				}
+				if (secondCircle) {
+					secondCircle.remove();
+				}
+				return;
+			}
+
+		}
+		sensoryInfo['TOUCH'] = 0;
+	}
+
+	function updateColorSeenByAlfie() {
+		////////////////////
+		//determine what colour the Alfie see in its 1 pixel visual sensor
+
+
+		//if yellow light is on, return yellow colour
+		if (ground.attr('fill') == "#ffff00") {
+			sensoryInfo["R"] = 255;
+			sensoryInfo["G"] = 255;
+			sensoryInfo["B"] = 0;
+			return;
+		}
+
+		// if blue light is on, return blue colour
+		if (ground.attr('fill') == "#0000ff") {
+			sensoryInfo["R"] = 0;
+			sensoryInfo["G"] = 0;
+			sensoryInfo["B"] = 255;
+			return;
+		}
+
+		// if lights off, return black colour
+		if (ground.attr('fill') == "#000000") {
+			sensoryInfo["R"] = 0;
+			sensoryInfo["G"] = 0;
+			sensoryInfo["B"] = 0;
+			return;
+		}
+
+		var currentAlfieRotation = parseInt((alfie.matrix.split().rotate) + 360) % 360;
+		//0,90,270 or 360
+
+		var bbox = alfie.getBBox();
+
+
+		if (tmpLine) {
+			tmpLine.remove();
+		}
+		var target;
+		if (currentAlfieRotation == 0) {
+			target = "l 0 -450";
+		}
+		if (currentAlfieRotation == 90) {
+			target = "l  450 0";
+		}
+		if (currentAlfieRotation == 180) {
+			target = "l 0 450";
+		}
+		if (currentAlfieRotation == 270) {
+			target = "l  -450 0";
+		}
+
+		//this is a line from alfie's nose, perpendicular to its body
+		tmpLine = paper.path("M " + parseInt(bbox.x + bbox.width / 2) + "  " + parseInt(bbox.y + bbox.height / 2) + target);
+		//console.log("M "+parseInt(bbox.x + bbox.width/2)     +"  "+  parseInt(bbox.y + bbox.height/2 )+target );
+		tmpLine.attr({
+			fill: "none",
+			stroke: 'none'
+		});
+		var lineLength = tmpLine.getTotalLength();
+		for (i = 0; i < lineLength; i += 5) {
+			var thisPoint = tmpLine.getPointAtLength(i);
+
+			//console.log(thisPoint);
+			if (tmpObject1) {
+				tmpObject1.remove();
+			}
+			tmpObject1 = paper.circle(thisPoint.x, thisPoint.y, 1, 1);
+			tmpObject1.attr({
+				fill: "red",
+				stroke: 'none'
+			});
+
+			if (Raphael.isBBoxIntersect(tmpObject1.getBBox(), wallTop.getBBox()) ||
+				Raphael.isBBoxIntersect(tmpObject1.getBBox(), wallLeft.getBBox()) ||
+				Raphael.isBBoxIntersect(tmpObject1.getBBox(), wallRight.getBBox()) ||
+				Raphael.isBBoxIntersect(tmpObject1.getBBox(), wallBottom.getBBox())
+			) {
+				// 	console.log("Wall seen");
+				sensoryInfo["R"] = 153;
+				sensoryInfo["G"] = 153;
+				sensoryInfo["B"] = 153;
+
+				return;
+			}
+
+
+ 
+
+			for (var x = 0; x < foodObjects.length; x++) {
+				if (Raphael.isBBoxIntersect(tmpObject1.getBBox(), foodObjects[x].getBBox())) {
+					sensoryInfo["R"] = 0;
+					sensoryInfo["G"] = 255;
+					sensoryInfo["B"] = 0;
+					//	 		console.log("Food seen");
+					return;
+				}
+			}
+
+
+			 
+
+
+
+		}
+
+
+	}
+
+
+
+
+	$(document).ready(function() {
+
+		paper = new Raphael(document.getElementById('canvas_container'), 400, 400);
+		var wallcolour = 'rgb(153, 153, 153)';
+		ground = paper.rect(0, 0, 400, 400);
+		ground.attr({
+			fill: "white"
+		});
+		wallTop = paper.rect(0, 0, 400, 10);
+		wallTop.attr({
+			fill: wallcolour,
+			stroke: 'none'
+		});
+		wallLeft = paper.rect(0, 0, 10, 400);
+		wallLeft.attr({
+			fill: wallcolour,
+			stroke: 'none'
+		});
+		wallRight = paper.rect(390, 0, 10, 400);
+		wallRight.attr({
+			fill: wallcolour,
+			stroke: 'none'
+		});
+		wallBottom = paper.rect(0, 390, 400, 10);
+		wallBottom.attr({
+			fill: wallcolour,
+			stroke: 'none'
+		});
+
+		alfie = paper.path("m 23.376168,49.123231 c 3.86836,-9.84119 18.33268,-23.27857 21.54833,-23.28065 3.21564,-0.002 19.02506,13.11152 23.22679,23.22096 3.34818,8.05581 0.0597,26.17162 0.0597,26.17162 l -44.8945,0.11939 c 0,0 -3.13905,-18.09363 0.0597,-26.23132 z");
+		//alfie = paper.path("m 200 200 l 20 -50  l 20 50 z");
+		alfie.attr({
+			fill: "lightblue",
+			stroke: 'blue',
+			title: 'Artificial Life Form (alfie)'
+		});
+		alfie.translate(200 - 20 - 23, 200 - 49 - 10);
+
+		paper2 = new Raphael(document.getElementById('visualinput'), 25, 25);
+		visualInputRect = paper2.rect(0, 0, 25, 25);
+		visualInputRect.attr({
+			fill: "none",
+			stroke: 'none'
+		});
+
+
+
+		$("input[name='lights']").change(function() {
+			if ($("input[name='lights']:checked").val() == "lightsoff") {
+				lightsoff();
+
+			} else {
+				whitelight(0);
+			}
+		});
+
+		var circuit = get_alfie_brain();
+		alfieBrain = circuit.brain;
+		//send_inputs();
+
+		
+		
+
+		 
+		var infoString = "Connection list : \n"; 
+
+			
+		for (var hh = 1; hh < alfieBrain.stepsAhead; hh++) {
+			for (var n = 0; n < alfieBrain.numberOfNeurons; n++) {
+				for (var n2 = 0; n2 < alfieBrain.numberOfNeurons; n2++) {
+					if (alfieBrain.connectionMatrix[hh][n][n2] == 0) {
+						continue;
+					}
+
+					if (alfieBrain.connectionMatrix[hh][n][n2] > 0) {
+						stableExcitatoryConnections++;
+						infoString += "\n EXCITATORY : " + alfieBrain.neuronNameOfIndex[n] + " ==(" + "t+" + hh + ",w="+alfieBrain.connectionMatrix[hh][n][n2]+") ===>" + alfieBrain.neuronNameOfIndex[n2];
+					}
+					if (alfieBrain.connectionMatrix[hh][n][n2] < 0) {
+						stableInhibitoryConnections++;
+						infoString += "\n INHIBITORY : " + alfieBrain.neuronNameOfIndex[n] + " ==(" + "t+" + hh + ",w="+alfieBrain.connectionMatrix[hh][n][n2]+") ===>" + alfieBrain.neuronNameOfIndex[n2];
+					}
+					 
+				}
+			}
+		} 
+		$("#infodiv3").html("");
+		$("#infodiv3").append("Number of neurons : " + alfieBrain.neurons.length);
+		$("#infodiv3").append("<br>Number of excitatory connections : " + stableExcitatoryConnections); 
+		$("#infodiv3").append("<br>Number of inhibitory connections : " + stableInhibitoryConnections); 
+		
+		//$("#infodiv3").append(infoString); 
+		
+		////print connections list
+		//console.log(infoString);
+		
+		createEnvironment1();
+		
+	});
+
+
+
+
+	///////////////// Brain 
+
+	function get_alfie_brain() {
+		
+		// stepsAhead H = 6
+		//  ie., (t+1),(t+2),(t+3),(t+4),(t_5) & (t+6) connections are allowed.
+ 		var brainx = new Brain({
+			stepsAhead: 6,
+			drawFiringFrame: false
+		});
+
+		/////////////////////////////////////////////////////////////////
+		////
+		//// 		LIST OF NEURONS
+		////
+		////////////////////////////////////////////////////////////////		
+		// 5 sensory input types ,each with downstream intensity detection circuits : (5*13 = 65 neurons)
+		//			Each of these scalars will have an intensity detection circuit 
+		//			to detect intensity of the input into 4 range-buckets
+		//			Each intensity detection circuit for this config will have 13 neurons each. 
+		//			(eg: RED intensity detection circuit has  R_A1, R_B1, R_C1,R_C2,R_C3,R_C4,R_D1,R_D2,R_D3,R_D4,R_E, R_F, R_Z )	
+		//			(eg: GREEN intensity detection circuit has  G_A1, G_B1, G_C1,G_C2,G_C3,G_C4,G_D1,G_D2,G_D3,G_D4,G_E, G_F, G_Z )	
+		//			(eg: BLUE intensity detection circuit has  B_A1, B_B1, B_C1,B_C2,B_C3,B_C4,B_D1,B_D2,B_D3,B_D4,B_E, B_F, B_Z )	
+		//			(eg: FOOD intensity detection circuit has  F_A1, F_B1, F_C1,F_C2,F_C3,F_C4,F_D1,F_D2,F_D3,F_D4,F_E, F_F, F_Z )	
+		//			(eg: ENERGY intensity detection circuit has  E_A1, E_B1, E_C1,E_C2,E_C3,E_C4,E_D1,E_D2,E_D3,E_D4,E_E, E_F, E_Z )	
+		//			So for 5 scalars, neurons = 13 * 5 = 65 neurons.
+		//		R (red)
+		//		G (green)
+		// 	 	B (blue) 
+		//		FOOD
+		//		ENERGY
+		//
+		// Single neurons list : (2 neurons) 
+		//		TOUCH
+		//		PAIN 
+		//
+		// Derived neurons list : (5 neurons)
+		//		ONLY_RED
+		//		ONLY_BLUE
+		//		ONLY_GREEN 
+		//		ONLY_YELLOW
+		//
+		//	Motor action neurons : (3 neurons)
+		//		FORWARD
+		//		ROTATE_RIGHT
+		//		DIGEST
+		//
+		// Decision circuit neurons: (5 neurons)
+		//		DECISION
+		//		DECISION_B1
+		//		DECISION_B2
+		//		ROTATE_RIGHT_DECISION
+		//		FORWARD_DECISION
+		//
+		//	TOTAL NEURONS = (65 + 4 + 5 + 3 + 5) = 82 neurons.
+		
+
+
+		rangeBuckets = 4;
+		
+		
+		// RED colour intensity in pixel input (range: 0 to 255)
+		// Input is fed to RED sensor neuron R_A1
+		// the range will be split into 4 rangebuckets : 
+		// If Red = 0 at time(t) 	:  R_F  fires at time t+4
+		// If Red = {1,2,..63} 		:  R_D1 fires at time t+3
+		// If Red = {64,65,..126} 	:  R_D2 fires at time t+3
+		// If Red = {127,128,..190} :  R_D3 fires at time t+3
+		// If Red = {191,192,..255} :  R_D4 fires at time t+3
+		// When Red > 0 at time(t) 	:  R_E  fires at time t+4
+		
+		var scalarNeurons = get_scalar_circuit_neurons("R_", rangeBuckets, 255);
+		for (var r = 0; r < scalarNeurons.length; r++) {
+			brainx.add_neuron(scalarNeurons[r]);
+		}
+		
+		// GREEN colour intensity in pixel input (range: 0 to 255)
+		// Input is fed to GREEN sensor neuron G_A1
+		// the range will be split into 4 rangebuckets : 
+		// If Green = 0 at time(t) 		:  G_F  fires at time t+4
+		// If Green = {1,2,..63} 		:  G_D1 fires at time t+3
+		// If Green = {64,65,..126} 	:  G_D2 fires at time t+3
+		// If Green = {127,128,..190} 	:  G_D3 fires at time t+3
+		// If Green = {191,192,..255} 	:  G_D4 fires at time t+3
+		// When Green > 0 at time(t) 	:  G_E  fires at time t+4
+		var scalarNeurons = get_scalar_circuit_neurons("G_", rangeBuckets, 255);
+		for (var r = 0; r < scalarNeurons.length; r++) {
+			brainx.add_neuron(scalarNeurons[r]);
+		}
+		
+		
+		
+		// BLUE colour intensity in pixel input (range: 0 to 255)
+		// Input is fed to BLUE sensor neuron G_A1
+		// the range will be split into 4 rangebuckets : 
+		// If Blue = 0 at time(t) 		:  B_F  fires at time t+4
+		// If Blue = {1,2,..63} 		:  B_D1 fires at time t+3
+		// If Blue = {64,65,..126} 		:  B_D2 fires at time t+3
+		// If Blue = {127,128,..190}	:  B_D3 fires at time t+3
+		// If Blue = {191,192,..255}	:  B_D4 fires at time t+3
+		// When Blue > 0 at time(t) 	:  B_E  fires at time t+4
+		var scalarNeurons = get_scalar_circuit_neurons("B_", rangeBuckets, 255);
+		for (var r = 0; r < scalarNeurons.length; r++) {
+			brainx.add_neuron(scalarNeurons[r]);
+		}
+
+		//let max value of remaining scalars be 100.
+		 
+		// FOOD LEVEL
+		// Food level intensity in input (range: 0 to 100)
+		// Input is fed to FOOD sensor neuron F_A1
+		// the range will be split into 4 rangebuckets : 
+		// If Food = 0 at time(t) 	:  F_F  fires at time t+4
+		// If Food = {1,2,..24} 	:  F_D1 fires at time t+3
+		// If Food = {25,26..49} 	:  F_D2 fires at time t+3
+		// If Food = {50,51,..74}	:  F_D3 fires at time t+3
+		// If Food = {75,76,..100}	:  F_D4 fires at time t+3
+		// When Food > 0 at time(t) :  F_E  fires at time t+4
+		var scalarNeurons = get_scalar_circuit_neurons("F_", rangeBuckets, 100);
+		for (var r = 0; r < scalarNeurons.length; r++) {
+			brainx.add_neuron(scalarNeurons[r]);
+		}
+		
+		
+		// ENERGY LEVEL 
+		// ENERGY level intensity in input (range: 0 to 100)
+		// Input is fed to ENERGY sensor neuron E_A1
+		// the range will be split into 4 rangebuckets : 
+		// If Energy = 0 at time(t) 	:  E_F  fires at time t+4
+		// If Energy = {1,2,..24} 		:  E_D1 fires at time t+3
+		// If Energy = {25,26..49} 		:  E_D2 fires at time t+3
+		// If Energy = {50,51,..74}		:  E_D3 fires at time t+3
+		// If Energy = {75,76,..100}	:  E_D4 fires at time t+3
+		// When Energy > 0 at time(t) 	:  E_E  fires at time t+4
+		var scalarNeurons = get_scalar_circuit_neurons("E_", rangeBuckets, 100);
+		for (var r = 0; r < scalarNeurons.length; r++) {
+			brainx.add_neuron(scalarNeurons[r]);
+		}
+
+		//////////////////////////////////////////////////////////////////////
+		// one neuron each for TOUCH, PAIN, HUNGER, SATIATION sensor input
+		var touch_sensor = new Neuron({
+			name: "TOUCH",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(touch_sensor);
+		
+		var pain_sensor = new Neuron({
+			name: "PAIN",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(pain_sensor);
+		
+		var hunger_sensor = new Neuron({
+			name: "HUNGER",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(hunger_sensor);
+
+	 
+		
+		
+		//////////////////////////////////////////////////////////////////////
+
+		// add specialized derived neurons
+		// Neurons to sense that YELLOW colour is seen (this information is derived from RGB intensity detection circuit neurons)
+		var yellow_sensor = new Neuron({
+			name: "ONLY_YELLOW",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(yellow_sensor);
+		
+		// Neurons to sense that RED colour is seen (this information is derived from RGB intensity detection circuit neurons)
+		var redonly_sensor = new Neuron({
+			name: "ONLY_RED",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(redonly_sensor);
+		
+		
+		 
+		// Neurons to sense that BLUE colour is seen (this information is derived from RGB intensity detection circuit neurons)
+		var blue_sensor = new Neuron({
+			name: "ONLY_BLUE",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(blue_sensor);
+		
+		// Neurons to sense that GREEN colour is seen (this information is derived from RGB intensity detection circuit neurons)
+		var green_sensor = new Neuron({
+			name: "ONLY_GREEN",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(green_sensor);
+		
+		//////////////////////////////////////////////////////////////////////
+		//add motor action neurons
+		var forward_action_neuron = new Neuron({
+			name: "FORWARD",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+
+		var rotate_right_neuron = new Neuron({
+			name: "ROTATE_RIGHT",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		var digest_neuron = new Neuron({
+			name: "DIGEST",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+
+		brainx.add_neuron(forward_action_neuron);
+		brainx.add_neuron(rotate_right_neuron);
+		brainx.add_neuron(digest_neuron);
+		//////////////////////////////////////////////////////////////////////
+		// Some neurons for decision making : 
+		// The decision making circuit exists to choose which of the available motor actions should be executed, at random.
+		// If one of the motor actions are preferred, increase the probability of it being selected, by adjusting the threshold accordingly(eg: DECSION_B2 below)
+		//
+		var decision = new Neuron({
+			name: "DECISION",
+			threshold: 1,
+			isBinaryOutput: false
+		});
+		brainx.add_neuron(decision);
+
+		var decision_filter1 = new Neuron({
+			name: "DECISION_B1",
+			threshold: 1.0,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(decision_filter1);
+		
+		// If DECISION_B2's threshold is 1.5, then there is 50% chance of decision1 (Forward), and 50% chance of decision2(rotate_right) 
+		// If DECISION_B2's threshold is 1.7, then there is 70% chance of decision1 (Forward), and 30% chance of decision2(rotate_right) ; this pair of values increase survivability
+		// If DECISION_B2's threshold is 1.9, then there is 90% chance of decision1 (Forward), and 10% chance of decision2(rotate_right) ; this pair of values increase survivability
+		var decision_filter2 = new Neuron({
+			name: "DECISION_B2",
+			threshold: 1.9,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(decision_filter2);
+		
+		var forward_decision_neuron = new Neuron({
+			name: "FORWARD_DECISION",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		var rotate_right_decision_neuron = new Neuron({
+			name: "ROTATE_RIGHT_DECISION",
+			threshold: 1,
+			isBinaryOutput: true
+		});
+		brainx.add_neuron(forward_decision_neuron);
+		brainx.add_neuron(rotate_right_decision_neuron);
+		//////////////////////////////////////////////////////////////////////
+		
+		brainx.init_connections()
+
+
+		//create standard intensity detection circuits for each scalar input
+		var scalarConnections = get_scalar_circuit_connections("R_", rangeBuckets, 255);
+		for (var r = 0; r < scalarConnections.length; r++) {
+			brainx.create_connection(scalarConnections[r]);
+		}
+
+		var scalarConnections = get_scalar_circuit_connections("G_", rangeBuckets, 255);
+		for (var r = 0; r < scalarConnections.length; r++) {
+			brainx.create_connection(scalarConnections[r]);
+		}
+		var scalarConnections = get_scalar_circuit_connections("B_", rangeBuckets, 255);
+		for (var r = 0; r < scalarConnections.length; r++) {
+			brainx.create_connection(scalarConnections[r]);
+		}
+
+
+
+		var scalarConnections = get_scalar_circuit_connections("F_", rangeBuckets, 100);
+		for (var r = 0; r < scalarConnections.length; r++) {
+			brainx.create_connection(scalarConnections[r]);
+		}
+
+		var scalarConnections = get_scalar_circuit_connections("E_", rangeBuckets, 100);
+		for (var r = 0; r < scalarConnections.length; r++) {
+			brainx.create_connection(scalarConnections[r]);
+		}
+
+
+		// setup connections for derived neurons to work
+		// eg: ONLY_YELLOW neuron should fire only if yellow colour seen (red+green=yellow: red&green should be D<max> = D4 ;  blue activation should inhibit yellow neuron)
+		brainx.create_connection({
+			fromNeuronName: "R_D4",
+			toNeuronName: "ONLY_YELLOW",
+			synapticStepNumber: 2,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "G_D4",
+			toNeuronName: "ONLY_YELLOW",
+			synapticStepNumber: 2,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "B_E",
+			toNeuronName: "ONLY_YELLOW",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		
+		// If R is max , and Green and Blue are off, then strong RED colour is detected.
+		brainx.create_connection({
+			fromNeuronName: "R_D4",
+			toNeuronName: "ONLY_RED",
+			synapticStepNumber: 2,
+			connectionWeight: 1
+		});
+		brainx.create_connection({
+			fromNeuronName: "G_E",
+			toNeuronName: "ONLY_RED",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		brainx.create_connection({
+			fromNeuronName: "B_E",
+			toNeuronName: "ONLY_RED",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+	 
+		
+		// If Blue is max , and Green and RED are off, then strong BLUE colour is detected.
+		brainx.create_connection({
+			fromNeuronName: "R_E",
+			toNeuronName: "ONLY_BLUE",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		brainx.create_connection({
+			fromNeuronName: "G_E",
+			toNeuronName: "ONLY_BLUE",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		brainx.create_connection({
+			fromNeuronName: "B_D4",
+			toNeuronName: "ONLY_BLUE",
+			synapticStepNumber: 2,
+			connectionWeight: 1
+		});
+
+
+		// If Green is max , and Blue & RED are off, then strong GREEN colour is detected.
+		brainx.create_connection({
+			fromNeuronName: "R_E",
+			toNeuronName: "ONLY_GREEN",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		brainx.create_connection({
+			fromNeuronName: "G_D4",
+			toNeuronName: "ONLY_GREEN",
+			synapticStepNumber: 2,
+			connectionWeight: 1
+		});
+		brainx.create_connection({
+			fromNeuronName: "B_E",
+			toNeuronName: "ONLY_GREEN",
+			synapticStepNumber: 1,
+			connectionWeight: -10
+		});
+		
+		
+		
+
+
+		// Innate connection  
+		// If FOOD level is high, then inhibit HUNGER       
+		brainx.create_connection({
+			fromNeuronName: "F_D4",
+			toNeuronName: "HUNGER",
+			synapticStepNumber: 1,
+			connectionWeight: -1
+		});
+		
+		// If FOOD level is zero, then trigger HUNGER       
+		brainx.create_connection({
+			fromNeuronName: "F_F",
+			toNeuronName: "HUNGER",
+			synapticStepNumber: 1,
+			connectionWeight: 2
+		});
+		
+		// If FOOD level is low, then trigger HUNGER       
+		brainx.create_connection({
+			fromNeuronName: "F_D1",
+			toNeuronName: "HUNGER",
+			synapticStepNumber: 1,
+			connectionWeight: 2
+		});
+		// If FOOD level is low, then trigger HUNGER       
+		brainx.create_connection({
+			fromNeuronName: "F_D2",
+			toNeuronName: "HUNGER",
+			synapticStepNumber: 1,
+			connectionWeight: 2
+		});
+		// If FOOD level is low, then trigger HUNGER       
+		brainx.create_connection({
+			fromNeuronName: "F_D3",
+			toNeuronName: "HUNGER",
+			synapticStepNumber: 1,
+			connectionWeight: 2
+		});
+		
+
+		// Innate connection  
+		// If FOOD level > 0, and ENERGY level < maxlevel(ie., E_D4 is off => then one of E_F, E_D1,E_D2,E_D3 is firing) then initiate DIGEST action 
+		brainx.create_connection({
+			fromNeuronName: "F_E",
+			toNeuronName: "DIGEST",
+			synapticStepNumber: 1,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "E_F",
+			toNeuronName: "DIGEST",
+			synapticStepNumber: 1,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "E_D1",
+			toNeuronName: "DIGEST",
+			synapticStepNumber: 2,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "E_D2",
+			toNeuronName: "DIGEST",
+			synapticStepNumber: 2,
+			connectionWeight: 0.5
+		});
+		brainx.create_connection({
+			fromNeuronName: "E_D3",
+			toNeuronName: "DIGEST",
+			synapticStepNumber: 2,
+			connectionWeight: 0.5
+		});
+
+
+
+
+
+		// Innate connection  
+		// If colour seen is pure GREEN (food) , then move forward  
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "FORWARD",
+			synapticStepNumber: 1,
+			connectionWeight: 200.0
+		});
+		
+		//to prevent rotate right at same time as ONLY_GREEN fires
+		brainx.create_connection({
+			fromNeuronName: "G_D4",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 2,
+			connectionWeight: -10
+		});
+
+
+/////////////
+		//however if food is max level (F_D4), don't move forward towards food, even if green is seen.
+		brainx.create_connection({
+			fromNeuronName: "F_D4",
+			toNeuronName: "FORWARD",
+			synapticStepNumber: 1,
+			connectionWeight: -200.0
+		});
+
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 1,
+			connectionWeight: -200.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 2,
+			connectionWeight: -200.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 3,
+			connectionWeight: -200.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 4,
+			connectionWeight: -200.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ONLY_GREEN",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 5,
+			connectionWeight: -200.0
+		});
+
+
+		// Innate connection  
+		// make TOUCH input signal as a pinprick stimuli, ie., avoid continous excitation, just fire once and inhibit immediate self-excitation
+		brainx.create_connection({
+			fromNeuronName: "TOUCH",
+			toNeuronName: "TOUCH",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "TOUCH",
+			toNeuronName: "TOUCH",
+			synapticStepNumber: 2,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "TOUCH",
+			toNeuronName: "TOUCH",
+			synapticStepNumber: 3,
+			connectionWeight: -1.0
+		});
+
+
+		// Innate connection  
+		// If TOUCH detected, then  rotate-right ONLY_ONCE and then go-forward once. 
+		brainx.create_connection({
+			fromNeuronName: "TOUCH",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 1,
+			connectionWeight: 500
+		});
+		brainx.create_connection({
+			fromNeuronName: "TOUCH",
+			toNeuronName: "FORWARD",
+			synapticStepNumber: 2,
+			connectionWeight: 500
+		});
+
+	 
+
+		//DECISION circuit  
+		brainx.create_connection({
+			fromNeuronName: "DECISION",
+			toNeuronName: "DECISION_B1",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "DECISION",
+			toNeuronName: "DECISION_B2",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "DECISION_B2",
+			toNeuronName: "FORWARD_DECISION",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "DECISION_B1",
+			toNeuronName: "FORWARD_DECISION",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "DECISION_B2",
+			toNeuronName: "ROTATE_RIGHT_DECISION",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+
+
+
+		// If PAIN triggered, make a decision and choose among available motor actions 
+
+		// motivation circut :  Urge(HUNGER)=> Pain => Action(forward/rotateright) => see food => eat food => satiation of hunger )
+		
+	
+		
+		brainx.create_connection({
+			fromNeuronName: "HUNGER",
+			toNeuronName: "PAIN",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+
+		 
+
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 2,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 3,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 4,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 5,
+			connectionWeight: -1.0
+		});
+
+
+////////////////////
+		brainx.create_connection({
+			fromNeuronName: "PAIN",
+			toNeuronName: "DECISION",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0,
+			fluctuate: true
+		});
+		brainx.create_connection({
+			fromNeuronName: "FORWARD_DECISION",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT_DECISION",
+			toNeuronName: "FORWARD",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+
+		//no point rotating repeatedly, limit consecutive rotations
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT_DECISION",
+			toNeuronName: "ROTATE_RIGHT_DECISION",
+			synapticStepNumber: 1,
+			connectionWeight: -1.0
+		});
+
+		brainx.create_connection({
+			fromNeuronName: "FORWARD_DECISION",
+			toNeuronName: "FORWARD",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+		brainx.create_connection({
+			fromNeuronName: "ROTATE_RIGHT_DECISION",
+			toNeuronName: "ROTATE_RIGHT",
+			synapticStepNumber: 1,
+			connectionWeight: 1.0
+		});
+
+
+		var datastream_to_use = [];
+
+		return {
+			brain: brainx,
+			datastream_to_use: datastream_to_use
+		};
+
+
+	}
+
+
+	function send_inputs() {
+
+		$("#restartbutton").css("display", "block");
+		$("#startbutton").css("display", "none");
+
+		epochCount = 0;
+		alfieBrain.clear_inputs();
+		clearInterval(idleInterval);
+		idleInterval = setInterval(function() {
+			send_info_to_brain(alfieBrain, null, null, null);
+		}, 300);
+
+	}
+
+
+
+	function send_info_to_brain(brainObject, cytoscapeObject, chartObject, tippyPlacement) {
+
+		updateSensoryInfo();
+		
+		$('#epochvalue').html(epochCount);
+		brainObject.clear_inputs();
+
+
+
+		//all scalar intensity detection circuits have input given to <prefix>_A1
+		brainObject.sensoryValuesDict["R_A1"] = parseFloat(sensoryInfo["R"]);
+		brainObject.sensoryValuesDict["G_A1"] = parseFloat(sensoryInfo["G"]);
+		brainObject.sensoryValuesDict["B_A1"] = parseFloat(sensoryInfo["B"]);
+
+
+		brainObject.sensoryValuesDict["TOUCH"] = parseFloat(sensoryInfo["TOUCH"]);
+		brainObject.sensoryValuesDict["F_A1"] = parseFloat(sensoryInfo["FOOD"]);
+
+		brainObject.sensoryValuesDict["E_A1"] = parseFloat(sensoryInfo["ENERGY"]); 
+		
+		
+		
+		///////////display 
+		
+		var datastreamSnapshot = "<span style='font-size:0.9em;'><b>Input datastream to brain at epoch "+epochCount+" : </b></span>";
+		
+		//heartbeat simulate
+		if (epochCount %2 == 0){
+			datastreamSnapshot+="<span style='background-color:red;color:white;'>&hearts;  &nbsp;&nbsp;</span>";
+		}else{
+			datastreamSnapshot+="<span style='background-color:red'>&hearts; &nbsp;&nbsp;</span>";
+		}
+		datastreamSnapshot += "<table class='smalltable' style='font-size:0.9em;border-collapse: collapse;'> <tr><td>R_A1 (RED) </td><td> "+ brainObject.sensoryValuesDict["R_A1"] +"</td></tr>";
+		datastreamSnapshot += "<tr><td>G_A1 (GREEN)  </td><td> "+ brainObject.sensoryValuesDict["G_A1"] +"</td></tr>";
+		datastreamSnapshot += "<tr><td> B_A1 (BLUE)  </td><td> "+ brainObject.sensoryValuesDict["B_A1"] +"</td></tr>";
+		
+		datastreamSnapshot += "<tr><td>E_A1 (ENERGY LEVEL)  </td><td> "+ brainObject.sensoryValuesDict["E_A1"] +"</td></tr>";
+		
+		datastreamSnapshot += "<tr><td>F_A1 (FOOD LEVEL) </td><td> "+ brainObject.sensoryValuesDict["F_A1"] +"</td></tr>"; 
+		
+		datastreamSnapshot += "<tr><td>TOUCH  </td><td> "+ brainObject.sensoryValuesDict["TOUCH"] +"</td></tr>"; 
+		datastreamSnapshot += " </table>";
+		
+		$('#infodiv2').html(datastreamSnapshot); 
+
+
+		//then move to next epoch    
+		brainObject.next_epoch();
+
+		//highlight certain neurons based on activation state. 
+		for (var nn = 0; nn < brainObject.neurons.length; nn++) {
+
+
+
+			if (brainObject.neuronNameOfIndex[nn].includes("FORWARD") ||
+				brainObject.neuronNameOfIndex[nn].includes("ROTATE_RIGHT") ||
+				brainObject.neuronNameOfIndex[nn].includes("DIGEST") ||
+				brainObject.neuronNameOfIndex[nn].includes("HUNGER") ||
+				brainObject.neuronNameOfIndex[nn].includes("DECISION") ||
+				brainObject.neuronNameOfIndex[nn].includes("ONLY_") ||
+				brainObject.neuronNameOfIndex[nn].includes("_D") ||
+				brainObject.neuronNameOfIndex[nn].includes("PAIN") || 
+				brainObject.neuronNameOfIndex[nn].includes("TOUCH") ||
+				brainObject.neuronNameOfIndex[nn].includes("_E") ||
+				brainObject.neuronNameOfIndex[nn].includes("_F")) {
+				if (brainObject.firingFrame[0][nn] > 0) {
+					// console.log("#"+brainObject.neuronNameOfIndex[nn]);
+					$("#" + brainObject.neuronNameOfIndex[nn]).addClass('flashneuron');
+
+				} else {
+					$("#" + brainObject.neuronNameOfIndex[nn]).removeClass('flashneuron');
+				}
+
+
+				//perform motor actions based on activation state.
+				//If motor action neurons are activated, perform corresponding action in Alfie.
+				if (brainObject.neuronNameOfIndex[nn] == "FORWARD" && brainObject.firingFrame[0][nn] > 0) {
+					//console.log("Moving forward");
+					move_forward();
+				}
+
+				//If motor action neurons are activated, perform corresponding action in Alfie.
+				if (brainObject.neuronNameOfIndex[nn] == "ROTATE_RIGHT" && brainObject.firingFrame[0][nn] > 0) {
+					//	 console.log(epochCount+ " :Rotating right "+ brainObject.firingFrame[0][nn]);
+					rotate_right();
+				}
+
+				//If digest motor action activated, perform corresponding action in Alfie.
+				if (brainObject.neuronNameOfIndex[nn] == "DIGEST" && brainObject.firingFrame[0][nn] > 0) {
+					//console.log(epochCount+ " : Digesting "+ brainObject.firingFrame[0][nn]);
+					digest();
+				}
+
+			}
+
+		}
+
+
+
+
+		epochCount += 1;
+
+		//every  10 epochs, reduce energy level by 5
+		// when energylevel=0, alfie dies.
+		if (epochCount > 0 && epochCount % 20 == 0) {
+			sensoryInfo["ENERGY"] -= 10;
+			$("#infodiv").prepend("Epoch " + epochCount + ": Energy reduced by 10<br>");
+		}
+
+
+
+		if (sensoryInfo["ENERGY"] <= 0) {
+			$("#infodiv").prepend("<span style='font-size:1.5em;color:darkorange;font-weight:bold;'>Energy is ZERO. <br>Alfie dead at epoch "+epochCount+"<br>|&bsol;__|&bsol;__|&bsol;________________</span><br><br>");
+			clearInterval(idleInterval);
+			$("#restartbutton").css("display", "block");
+			$("#startbutton").css("display", "none");
+			document.body.style.background = '#444444';
+
+		}
+
+
+	}
+</script>
+<body style='background-color:white;font-family:Nunito Sans;background-color:lightyellow;padding:8px;'>
+    <div class="container2">
+        <div class="row" style="">
+            <div class="col-sm-5">
+                <div id='sensorycanvasdiv'>
+
+                    <table style='border:1px solid black;width:100%;background-color:#efefef'>
+                        <tr>
+                            <td colspan=3 style='text-align:left;font-size:0.8em;color:#333333'>Datastream from environment sensors</td>
+                        </tr>
+                        <tr>
+                            <td>Colour seen</td>
+                            <td>
+                                <div id="visualinput" width="25" height="25" style='float:left;align:left;'></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Red</td>
+                            <td><span id='redvalue'>__</span> </td>
+                            <td>
+                                <span class='neuron' id='R_D1'>R_D1</span>
+                                <span class='neuron' id='R_D2'>R_D2</span>
+                                <span class='neuron' id='R_D3'>R_D3</span>
+                                <span class='neuron' id='R_D4'>R_D4</span>
+                                <span class='neuron' id='R_F'>R_F</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Green</td>
+                            <td><span id='greenvalue'>__</span></td>
+                            <td>
+                                <span class='neuron' id='G_D1'>G_D1</span>
+                                <span class='neuron' id='G_D2'>G_D2</span>
+                                <span class='neuron' id='G_D3'>G_D3</span>
+                                <span class='neuron' id='G_D4'>G_D4</span>
+                                <span class='neuron' id='G_F'>G_F</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Blue</td>
+                            <td><span id='bluevalue'>__</span> </td>
+                            <td>
+                                <span class='neuron' id='B_D1'>B_D1</span>
+                                <span class='neuron' id='B_D2'>B_D2</span>
+                                <span class='neuron' id='B_D3'>B_D3</span>
+                                <span class='neuron' id='B_D4'>B_D4</span>
+                                <span class='neuron' id='B_F'>B_F</span>
+                            </td>
+                        </tr>
+                        <tr>
+
+                            <td colspan=3>
+
+                                <span class='neuron' id='TOUCH'>TOUCH</span>
+                            </td>
+                        </tr>
+                        <tr style='background-color:#dfdfdf;border-top:1px solid black;'>
+                            <td colspan=3 style='text-align:left;font-size:0.8em;color:#333333'>Neurons for derived data</td>
+                        </tr>
+                        <tr style='background-color:#dfdfdf'>
+                            <td colspan=3 align=left>
+                                <span class='neuron' id='ONLY_RED'>ONLY_RED</span>
+                                <span class='neuron' id='ONLY_YELLOW'>ONLY_YELLOW</span>
+                                <span class='neuron' id='ONLY_GREEN'>ONLY_GREEN</span>
+                                <span class='neuron' id='ONLY_BLUE'>ONLY_BLUE</span>
+
+                            </td>
+                        </tr>
+
+
+
+
+                        <tr style='background-color:#dfdfdf;border-top:1px solid black;'>
+                            <td colspan=3 style='text-align:left;font-size:0.8em;color:#333333'>Datastream from autonomous subsystems</td>
+                        </tr>
+
+                        <tr style='background-color:#dfdfdf'>
+                            <td>Food level</td>
+                            <td><span id='foodvalue'>__</span> </td>
+                            <td>
+                                <span class='neuron' id='F_D1'>F_D1</span>
+                                <span class='neuron' id='F_D2'>F_D2</span>
+                                <span class='neuron' id='F_D3'>F_D3</span>
+                                <span class='neuron' id='F_D4'>F_D4</span>
+                                <span class='neuron' id='F_F'>F_F</span>
+                            </td>
+                        </tr>
+
+                        <tr style='background-color:#dfdfdf'>
+                            <td>Energy level</td>
+                            <td><span id='energyvalue'>__</span> </td>
+                            <td>
+                                <span class='neuron' id='E_D1'>E_D1</span>
+                                <span class='neuron' id='E_D2'>E_D2</span>
+                                <span class='neuron' id='E_D3'>E_D3</span>
+                                <span class='neuron' id='E_D4'>E_D4</span>
+                                <span class='neuron' id='E_F'>E_F</span>
+                            </td>
+                        </tr>
+                        
+
+                        <tr style='background-color:#efefef;border-top:1px solid black;'>
+                            <td colspan=3 style='text-align:left;font-size:0.8em;color:#333333'>Motor action neurons</td>
+                        </tr>
+                        <tr>
+                            <td colspan=3 style='text-align:center;'>
+                                <span class='neuron' id='FORWARD'>FORWARD</span>
+
+                                <span class='neuron' id='ROTATE_RIGHT'>ROTATE_RIGHT</span>
+
+                                <span class='neuron' id='DIGEST'>DIGEST</span>
+                            </td>
+                        </tr>
+
+
+                        <tr style='background-color:#efefef;border-top:1px solid black;'>
+                            <td colspan=3 style='text-align:left;font-size:0.8em;color:#333333'>Decision neurons</td>
+                        </tr>
+
+                        <tr>
+                            <td colspan=3 style='text-align:center;'>
+								 <span class='neuron' id='HUNGER'>HUNGER</span>
+                                <span class='neuron' id='PAIN'>PAIN</span> 
+                                <br>
+                                <span class='neuron' id='DECISION'>DECISION</span>
+                                <span class='neuron' id='DECISION_B1'>DECISION_B1</span>
+                                <span class='neuron' id='DECISION_B2'>DECISION_B2</span>
+
+                                <br>
+                                <span class='neuron' id='FORWARD_DECISION'>FORWARD_DECISION</span>
+                                <span class='neuron' id='ROTATE_RIGHT_DECISION'>ROTATE_RIGHT_DECISION</span>
+
+                        </tr>
+
+                    </table>
+                    <br>
+                    <div id="infodiv2" style='font-family:"Courier New",Courier,monospace;display:block;height:200px;font-size:0.8em;background-color:transparent;border:0px solid gray;padding:5px;overflow-y:auto'>
+
+                    </div>
+                    <br>
+                    <div id="infodiv" style='font-family:"Courier New",Courier,monospace;display:block;height:70px;font-size:0.7em;background-color:transparent;border:0px solid gray;padding:5px;overflow-y:auto'>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-7" style='height:400px;background-color:transparent;border:0px solid gray;'>
+
+                <div id="canvas_container" width="400" height="400" style=''></div>
+                <br> <br>
+                <table  width="400px"  style='border:1px solid transparent;background-color:transparent;'>
+                    <tr>
+                        <td style='border:0px solid black;border-right:0px;width:100px;'>
+                            <button class='startbuttons' id='startbutton' onclick='send_inputs();' style='font-size:1.3em;padding:13px;display:block;background-color:yellow;'> Start</button>
+                        </td>
+                        <td style='border:0px solid black;border-right:0px;width:100px;'>
+                              <button class='startbuttons' id='restartbutton' onclick='document.location.reload();' style='font-size:1.3em;padding:13px;display:none;background-color:orange'> Restart</button>
+
+                      </td>
+
+                        <td style='border:0px solid black;border-right:0px'>
+                            <span style='text-align:right;align:right'> Epoch : <span id='epochvalue' style='font-size:2em;'>__</span></span> &nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                    </tr>
+					<tr>
+                        <td colspan=4 style='text-align:left;border:0px solid black;border-right:0px'>
+							 <br>
+					<button class='envbutton' onclick='javascript:placeFood();'> Place Food</button> &nbsp;&nbsp;
+					<input class='envbutton' type="radio" name="lights" value="lightson" checked> Lights on </input>
+					&nbsp;&nbsp;
+					<input class='envbutton' type="radio" name="lights" value="lightsoff"> Lights off</input>
+					 <br><br>
+					<button class='envbutton' onmousedown='javascript:yellowlight();' onmouseup="javascript:whitelight();"> Yellow Light flash</button>
+					<button class='envbutton' onmousedown='javascript:bluelight();' onmouseup="javascript:whitelight();"> Blue light flash</button>
+					<br><br>
+				 
+					 
+                        </td>
+					</tr>
+					<tr>
+						<td colspan=4  style='text-align:left;border:0px solid black;border-right:0px'>
+							<br>
+						<span id="infodiv3"></span> 
+						</td>
+                    </tr>
+                </table>
+
+
+
+               
+            </div>
+        </div>
+
+        
+    </div>
+
+</body>
+	  
+</html>

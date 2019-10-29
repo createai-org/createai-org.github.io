@@ -1,0 +1,386 @@
+<!--
+Web Audio spectrogram - written by Jan Schnupp
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Online Spectrogram</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+  <!---
+    <script src="//auditoryneuroscience.com/sites/default/files/jans_js/jquery.min.js" ></script>
+    <script src="//auditoryneuroscience.com/sites/default/files/jans_js/JansAudioStuff.js"></script>
+--->
+    <script src="jquery.min.js" ></script>
+    <script src="JansAudioStuff.js"></script>
+    
+    <script type="text/javascript">
+		//audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+ 
+		var type='sine';   
+		var duration = 500; //milliseconds
+		var volume=50;
+
+		function beep(frequency) { 
+			var oscillator = context.createOscillator();
+			var gainNode = context.createGain();
+
+			oscillator.connect(gainNode);
+			gainNode.connect(context.destination);
+
+			gainNode.gain.value = volume;
+			oscillator.frequency.value = frequency;
+			oscillator.type = type;
+
+			oscillator.start();
+		  
+			setTimeout(
+			  function(){
+				oscillator.stop();
+			  }, 
+			  duration
+			);  
+		};
+	</script>
+    
+    
+    
+    <script type="text/javascript">
+
+      var canv;
+      var canvHeight = 325;
+      var canvWidth = 300;
+      var canvBorderWidth = 30;
+      var aplot,
+        previousData,
+        analyser, nyquist,
+        spectorgramAnimationTimer,
+        spectrogramInterval;
+      var microphone;
+      var canvasCtx;
+      var colormap;
+	  var spectorgramAnimationTimer;
+	  
+      function processSoundTick()
+      {
+        
+          if (analyser !== undefined) {
+            var freqByteData = new Uint8Array(analyser.frequencyBinCount);
+            //console.log('processSoundTick() analyser len ' + analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(freqByteData);
+             //console.log(freqByteData.length);
+             
+             //total range: 0 to 6000Hz
+             // if freqbins = 128 , 
+             // bin corrsp to 6000Hz is 34
+             // bin corrsp to 1000Hz is 5
+             // bin corrsp to 2000Hz is 11
+             // bin corrsp to 3000Hz is  17
+             // bin corrsp to 4000Hz is  23
+             // bin corrsp to 5000Hz is  29
+             
+            /*  var maxIndex = 0;
+             for(var f=0;f<freqByteData.length;f++){
+				if (freqByteData[f] > freqByteData[maxIndex]){
+					maxIndex = f;
+				} 
+			 } 
+             console.log("freqbin = "+maxIndex + " ; volume = " +freqByteData[maxIndex]);
+             */
+           //  console.log(  freqByteData[5] +" ,"+ freqByteData[34]); 
+             //console.log("1000Hz sensor detected volume = "+ freqByteData[5]);
+             //console.log("6000Hz sensor detected volume = "+ freqByteData[34]); 
+              
+              $('#thousand').html("Amplitude of sound detected by 1000Hz sensor : "+ freqByteData[5]);
+              
+              if(freqByteData[5]>200){
+				  $('#thousand').css("background-color","red");
+			  }else{
+					$('#thousand').css("background-color","transparent");
+			  }
+			  
+			  
+			  $('#sixthousand').html("Amplitude of sound detected by 6000Hz sensor : "+ freqByteData[34]);
+			   if(freqByteData[34]>200){
+				  $('#sixthousand').css("background-color","red");
+			  }else{
+					$('#sixthousand').css("background-color","transparent");
+			  }
+              
+            updateCanvas(canv, freqByteData);
+          }
+      }
+
+      function spectDataToImageData(newData,ctx){
+        var imgData = ctx.getImageData(canvBorderWidth+canvWidth-1, 0, 1, canvHeight - canvBorderWidth - 1);
+        var L = imgData.data.length;
+        var offset = L - 4;
+        for (var i = 0; i < L; i += 4) {
+          imgData.data[offset - i + 0] = colormap.red[newData[i / 4]];
+          imgData.data[offset - i + 1] = colormap.green[newData[i / 4]];
+          imgData.data[offset - i + 2] = colormap.blue[newData[i / 4]];
+          imgData.data[offset - i + 3] = 255;
+        }
+        return imgData;
+      }
+
+      function updateCanvas(ctx, newData) {
+        if (previousData === undefined) previousData=newData;
+        // get previous canvas data 
+        var imgData = ctx.getImageData(canvBorderWidth+4, 0, canvWidth - canvBorderWidth , 
+          canvHeight - canvBorderWidth - 1);
+        // shift previous canvas content along 
+        ctx.putImageData(imgData, canvBorderWidth, 0);
+        // add new data
+        ctx.putImageData(spectDataToImageData(newData,ctx), canvWidth-4, 0);
+        var interpData=new Float32Array(newData);
+        for (var i = 0; i < interpData.Length; i++) {
+          interpData[i]=Math.round(interpData[i]*0.75+previousData[i]*0.25);
+        }
+        ctx.putImageData(spectDataToImageData(newData,ctx), canvWidth-3, 0);
+        interpData=new Float32Array(newData);
+        for (var i = 0; i < interpData.Length; i++) {
+          interpData[i]=Math.round(interpData[i]*0.5+previousData[i]*0.5);
+        }
+        ctx.putImageData(spectDataToImageData(newData,ctx), canvWidth-2, 0);
+        interpData=new Float32Array(newData);
+        for (var i = 0; i < interpData.Length; i++) {
+          interpData[i]=Math.round(interpData[i]*0.25+previousData[i]*0.75);
+        }
+        ctx.putImageData(spectDataToImageData(newData,ctx), canvWidth-1, 0);
+        
+        previousData=newData;
+      }
+
+      function streamGenerationError() {
+        alert('Stream generation failed.');
+      }
+
+      function getUserMedia(dictionary, callback) {
+        try {
+          navigator.getUserMedia =
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia;
+          navigator.getUserMedia(dictionary, callback, streamGenerationError);
+        } catch (e) {
+          alert('getUserMedia threw exception :' + e + '. This probably means you are using an incompatible browser. Try Firefox or Chrome.');
+        }
+      }
+
+      function gotStream(stream) {
+        // Create an AudioNode from the stream.
+        console.log('connecting to the microphone');
+        microphone = context.createMediaStreamSource(stream);
+        // Connect it to an analyser node.
+        analyser = context.createAnalyser();
+        analyser.fftSize =  2048;
+        
+         analyser.fftSize =  2048/8;
+        
+        
+        
+        analyser.smoothingTimeConstant = 0 ;
+      //  noiseFloorChange(noiseFloor.value);
+        microphone.connect(analyser);
+        // if this works then its time to display the spectrogram gui
+        console.log('making the plot visible');
+        document.getElementById("spectInstructions").style.display = "none";
+        document.getElementById("spectrogramGui").style.display = "block";
+        // start animation
+        spectorgramAnimationTimer = setInterval(function() {
+          processSoundTick();
+        }, spectrogramInterval);
+      }
+
+      function toggleLiveInput() {
+        console.log('starting acquisition');
+        getUserMedia({audio: true}, gotStream);
+      }
+
+      function linspace(from, to, nsteps) {
+        var result = new Float32Array(nsteps);
+        var astep = (from - to) / (nsteps - 1);
+        for (var i = 0; i < nsteps; i++)
+          result[i] = from + i * astep;
+        return result;
+      }
+
+      function Ui8concat(first, second)
+      {
+        var firstLength = first.length;
+        var result = new Uint8Array(firstLength + second.length);
+
+        result.set(first);
+        result.set(second, firstLength);
+
+        return result;
+      }
+      
+      function setupColorMap() {
+        colormap = new Object();
+        /* jet map 
+        colormap.red = new Uint8Array(linspace(0, 0, 96));
+        colormap.red = Ui8concat(colormap.red, new Uint8Array(linspace(0, 255, 64)));
+        colormap.red = Ui8concat(colormap.red, new Uint8Array(linspace(255, 255, 64)));
+        colormap.red = Ui8concat(colormap.red, new Uint8Array(linspace(255, 128, 32)));
+        colormap.blue = new Uint8Array(linspace(128, 255, 32));
+        colormap.blue = Ui8concat(colormap.blue, new Uint8Array(linspace(255, 255, 64)));
+        colormap.blue = Ui8concat(colormap.blue, new Uint8Array(linspace(255, 0, 64)));
+        colormap.blue = Ui8concat(colormap.blue, new Uint8Array(linspace(0, 0, 96)));
+        colormap.green = new Uint8Array(linspace(0, 0, 32));
+        colormap.green = Ui8concat(colormap.green, new Uint8Array(linspace(0, 255, 64)));
+        colormap.green = Ui8concat(colormap.green, new Uint8Array(linspace(255, 255, 64)));
+        colormap.green = Ui8concat(colormap.green, new Uint8Array(linspace(255, 0, 64)));
+        colormap.green = Ui8concat(colormap.green, new Uint8Array(linspace(0, 0, 32))); */
+		/* pyplot plasma map */
+		colormap.red = new Uint8Array([ 12,  16,  19,  21,  24,  27,  29,  31,  33,  35,  37,  39,  41,
+        43,  45,  47,  49,  51,  52,  54,  56,  58,  59,  61,  63,  64,
+        66,  68,  69,  71,  73,  74,  76,  78,  79,  81,  82,  84,  86,
+        87,  89,  90,  92,  94,  95,  97,  98, 100, 101, 103, 104, 106,
+       108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126,
+       127, 129, 130, 132, 133, 134, 136, 137, 139, 140, 142, 143, 144,
+       146, 147, 149, 150, 151, 153, 154, 155, 157, 158, 159, 160, 162,
+       163, 164, 165, 167, 168, 169, 170, 172, 173, 174, 175, 176, 177,
+       178, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191,
+       192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204,
+       205, 206, 207, 208, 209, 209, 210, 211, 212, 213, 214, 215, 215,
+       216, 217, 218, 219, 220, 220, 221, 222, 223, 223, 224, 225, 226,
+       227, 227, 228, 229, 229, 230, 231, 232, 232, 233, 234, 234, 235,
+       236, 236, 237, 237, 238, 239, 239, 240, 240, 241, 242, 242, 243,
+       243, 244, 244, 245, 245, 246, 246, 246, 247, 247, 248, 248, 248,
+       249, 249, 250, 250, 250, 250, 251, 251, 251, 252, 252, 252, 252,
+       252, 252, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253,
+       253, 253, 253, 253, 253, 252, 252, 252, 252, 252, 251, 251, 251,
+       250, 250, 250, 249, 249, 248, 248, 247, 247, 246, 246, 245, 245,
+       244, 243, 243, 242, 242, 241, 240, 240, 239]);
+	   colormap.green = new Uint8Array([  7,   7,   6,   6,   6,   6,   6,   5,   5,   5,   5,   5,   5,
+         5,   4,   4,   4,   4,   4,   4,   4,   4,   3,   3,   3,   3,
+         3,   3,   3,   2,   2,   2,   2,   2,   2,   1,   1,   1,   1,
+         1,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+         0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   2,   2,   3,
+         3,   4,   4,   5,   6,   7,   7,   8,   9,  10,  12,  13,  14,
+        15,  16,  17,  18,  19,  20,  21,  23,  24,  25,  26,  27,  28,
+        29,  30,  31,  33,  34,  35,  36,  37,  38,  39,  40,  42,  43,
+        44,  45,  46,  47,  48,  50,  51,  52,  53,  54,  55,  56,  57,
+        59,  60,  61,  62,  63,  64,  65,  66,  68,  69,  70,  71,  72,
+        73,  74,  75,  77,  78,  79,  80,  81,  82,  83,  85,  86,  87,
+        88,  89,  90,  91,  93,  94,  95,  96,  97,  98, 100, 101, 102,
+       103, 104, 106, 107, 108, 109, 110, 112, 113, 114, 115, 116, 118,
+       119, 120, 121, 123, 124, 125, 126, 128, 129, 130, 132, 133, 134,
+       135, 137, 138, 139, 141, 142, 143, 145, 146, 147, 149, 150, 152,
+       153, 154, 156, 157, 159, 160, 162, 163, 164, 166, 167, 169, 170,
+       172, 173, 175, 176, 178, 179, 181, 182, 184, 185, 187, 188, 190,
+       192, 193, 195, 196, 198, 199, 201, 203, 204, 206, 208, 209, 211,
+       213, 214, 216, 217, 219, 221, 223, 224, 226, 228, 229, 231, 233,
+       234, 236, 238, 240, 241, 243, 245, 246, 248]);
+	   colormap.blue= new Uint8Array ([134, 135, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147,
+       148, 148, 149, 150, 151, 152, 152, 153, 154, 154, 155, 156, 156,
+       157, 158, 158, 159, 159, 160, 161, 161, 162, 162, 163, 163, 163,
+       164, 164, 165, 165, 165, 166, 166, 166, 167, 167, 167, 167, 167,
+       168, 168, 168, 168, 168, 168, 168, 168, 168, 168, 168, 167, 167,
+       167, 167, 167, 166, 166, 166, 165, 165, 164, 164, 164, 163, 163,
+       162, 161, 161, 160, 160, 159, 158, 158, 157, 156, 155, 155, 154,
+       153, 152, 151, 151, 150, 149, 148, 147, 146, 145, 144, 143, 143,
+       142, 141, 140, 139, 138, 137, 136, 135, 134, 133, 132, 131, 130,
+       129, 128, 128, 127, 126, 125, 124, 123, 122, 121, 120, 119, 118,
+       117, 117, 116, 115, 114, 113, 112, 111, 110, 109, 109, 108, 107,
+       106, 105, 104, 103, 102, 102, 101, 100,  99,  98,  97,  96,  96,
+        95,  94,  93,  92,  91,  90,  90,  89,  88,  87,  86,  85,  84,
+        84,  83,  82,  81,  80,  79,  78,  77,  77,  76,  75,  74,  73,
+        72,  71,  71,  70,  69,  68,  67,  66,  65,  65,  64,  63,  62,
+        61,  60,  59,  58,  58,  57,  56,  55,  54,  53,  53,  52,  51,
+        50,  49,  49,  48,  47,  46,  45,  45,  44,  43,  43,  42,  41,
+        41,  40,  40,  39,  38,  38,  38,  37,  37,  37,  36,  36,  36,
+        36,  36,  36,  36,  36,  36,  36,  36,  37,  37,  37,  38,  38,
+        38,  38,  38,  38,  38,  38,  37,  35,  33]);
+      }
+
+	  function labelXaxis(){
+	    canv.textAlign = "center";
+		canv.rect(0,canvHeight-canvBorderWidth,canvWidth,canvHeight); // white rectangle to erase any previous labels 
+		canv.fillStyle='white';
+		canv.fill();
+		canv.fillStyle='black';
+        canv.fillText("0", canvBorderWidth, canvHeight - 12);
+        var pixelsPerSecond=(1000/spectrogramInterval)*4; // the canvas advances 4 pixels on every interval
+        canv.fillText("1", canvBorderWidth + pixelsPerSecond, canvHeight - 12);
+        canv.fillText("2", canvBorderWidth + pixelsPerSecond*2, canvHeight - 12);
+        canv.fillText("3", canvBorderWidth + pixelsPerSecond*3, canvHeight - 12);
+        canv.fillText("4", canvBorderWidth + pixelsPerSecond*4, canvHeight - 12);
+        canv.fillText("5", canvBorderWidth + pixelsPerSecond*5, canvHeight - 12);
+        canv.textAlign = "end";
+        canv.fillText("seconds", canvWidth, canvHeight - 6);
+	  }
+
+      $(function() {
+        initAudio();
+        //spectrogramInterval=Math.ceil(2048000/context.sampleRate);
+        spectrogramInterval = 100; // ms
+        // console.log('spectrogramInterval is '+spectrogramInterval);
+        // setup heatmap canvas
+        canv = document.getElementById("colorPlot").getContext("2d");
+        var canvas = document.getElementById("colorPlot");
+        canvas.width = canvWidth;
+        canvas.height = canvHeight;
+        setupColorMap();
+        // put some axis labels
+        canv.font = "15px Arial";
+		labelXaxis();
+
+        var pixelsPerKHz = 1 / (context.sampleRate / 2048000);
+        canv.fillText("0", canvBorderWidth - 4, canvHeight - canvBorderWidth);
+        canv.fillText("1", canvBorderWidth - 4, canvHeight - canvBorderWidth - pixelsPerKHz);
+        canv.fillText("2", canvBorderWidth - 4, canvHeight - canvBorderWidth - 2 * pixelsPerKHz);
+        canv.fillText("3", canvBorderWidth - 4, canvHeight - canvBorderWidth - 3 * pixelsPerKHz);
+        canv.fillText("4", canvBorderWidth - 4, canvHeight - canvBorderWidth - 4 * pixelsPerKHz);
+        canv.fillText("5", canvBorderWidth - 4, canvHeight - canvBorderWidth - 5 * pixelsPerKHz);
+        canv.fillText("6", canvBorderWidth - 4, canvHeight - canvBorderWidth - 6 * pixelsPerKHz);
+        canv.save();
+        canv.translate(canvBorderWidth - 15, canvHeight - canvBorderWidth - 4.9 * pixelsPerKHz);
+        canv.rotate(-Math.PI/2);
+        canv.fillText("kHz", 0,0);
+        canv.restore();
+
+        canv.strokeRect(canvBorderWidth - 1, 0, canvWidth - canvBorderWidth, canvHeight - canvBorderWidth);
+
+        toggleLiveInput();
+
+      });
+	  
+	 
+
+    </script>
+    <div>
+       
+      <div id="spectInstructions">
+        <p>
+          <strong>
+            If you allow your browser access to your microphone, then an online spectrogram will appear here.
+          </strong>
+        </p>
+        <p>This demo requires a browser which supports HTML5 and web audio. It also requires <a href="http://www.webrtc.org/">WebRTC</a>, which is supported in recent versions of Chrome, Firefox and Opera browsers. As of Feb 2014 it works in recent versions of Chrome and Firefox, but not in Internet Explorer or Safari.</p>
+      </div>
+      <div id="spectrogramGui">
+        <canvas id="colorPlot" >
+          ERROR: Your browser does not support the HTML5 canvas tag.
+        </canvas> 
+       <br>
+   
+		  <br>
+		  <button onclick='javascript:beep(1000);'>Beep 1000 Hz</button>
+		  <button onclick='javascript:beep(6000);'>Beep 6000 Hz</button> 
+		   
+      </div> 
+    </div>
+   
+  <div id='thousand' style='padding:10px;width:40%;'></div> 
+   <div id='sixthousand' style='padding:10px;width:40%;'></div>
+  <br>
+  <hr>
+  <span style='font-size:0.8em;'> The frequency sensors detect the amplitude of sound in that particular frequency<br>Amplitude range @ frequency detected in the sensors :  0 to 255 </span>
+  
+  </body>
+</html>

@@ -1,0 +1,458 @@
+<html>
+
+
+
+
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css"  >
+ 
+	<link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet">
+  
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+ 
+    <script src='cytoscape.min.js'></script>
+    <script src="popper.js"></script>
+    <script src="cytoscape-popper.js"></script>
+    <script src="tippy.js"></script>
+    <script src="apexcharts.js"></script>
+    <script src="jquery.min.js"></script>
+     <script src="brain.v2.js"></script> 
+    <link rel="stylesheet" href="tippy.css" />
+    
+    
+</head>
+<style>
+    #cy { 
+        position: absolute; 
+    }
+    
+    /* makes sticky faster; disable if you want animated tippies */
+		.tippy-popper {
+			transition: none !important;
+		}
+	
+</style>
+
+
+
+
+
+<script language="javascript">
+
+
+ 
+
+  
+
+/////////////////////////////////////////////////////////////////////////////////
+var makeTippy = function(node, text,placement, preferredClass){
+	return tippy( node.popperRef(), {
+		content: function(){
+			var div = document.createElement('div');
+			div.innerHTML = text; 
+			if (preferredClass != undefined){
+				div.classList.add(preferredClass);
+			}
+			return div;
+		},
+		trigger: 'click',
+		arrow: true,
+		placement: placement,
+		hideOnClick: false,
+		multiple: true,
+		sticky: false
+	} );
+};
+////////////////////////////////////////////////////////////////////////////////////
+
+function destroyTippys(){
+	$('.tippy-popper').remove();  
+}
+
+
+function drawGraphCustom( brainObject, cytoscapeObject){
+	
+	var neurons = [];
+	var edges = [];
+	
+	for(var n=0;n<brainObject.neurons.length;n++){
+			 
+			 neurons.push({	name:brainObject.neurons[n].name,
+							threshold: brainObject.neurons[n].threshold,
+							isBinary:brainObject.neurons[n].isBinaryOutput,
+							alwaysOn:brainObject.neurons[n].alwaysOn
+							});
+	}			
+	
+	for (var hh=1;hh<brainObject.connectionMatrix.length;hh++){ 
+		for(var n=0;n<brainObject.neurons.length;n++){ 
+			for(var n2=0;n2<brainObject.neurons.length;n2++){  
+				if (brainObject.connectionMatrix[hh][n][n2] != 0){
+					edges.push({source: brainObject.neurons[n].name,target: brainObject.neurons[n2].name,connectionWeight:brainObject.connectionMatrix[hh][n][n2],timestep:hh});
+				} 
+			}
+		}
+		
+	}
+		 
+	//draw neurons
+	
+	
+	
+	//draw invisible neurons  to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true || brainObject.neurons[i].hideNeuron  == true){ 
+			 var thisnode = cytoscapeObject.add({
+				data: { id: neurons[i]["name"]+"_ENV" }
+				}
+			);
+			thisnode.style({"visibility":'hidden', 'border-color':'black','border-width':0}); 
+			 
+		} 
+	}
+
+	for (var i = 0; i < neurons.length; i++) {
+		var thisnode = cytoscapeObject.add({
+			data: { id: neurons[i]["name"] }
+			}
+		);
+		thisnode.style({"label":neurons[i]["name"]}); 
+	} 
+	
+	
+	
+	//add tooltips for each neuron
+	for (var i = 0; i < neurons.length; i++) {
+		var tooltip =  'threshold θ ='+brainObject.neurons[i].threshold ;
+		if( brainObject.neurons[i].isBinaryOutput  == true){ 
+			tooltip = tooltip +"<br> max.output=1";
+		}else{
+			cytoscapeObject.getElementById(neurons[i]["name"]).style("shape","square");
+			
+		}
+//		 makeTippy(cytoscapeObject.getElementById(neurons[i]["name"]),tooltip ).show();
+	} 
+
+
+
+	
+
+
+
+	for (var i = 0; i < edges.length; i++) {
+		var thisedge  = cytoscapeObject.add({
+			data: { id: edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"], source : edges[i]["source"], target  : edges[i]["target"] ,connectionWeight : edges[i]["connectionWeight"], timestep : edges[i]["timestep"] }
+			}
+		);
+		thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+						"source-label": "" +" ", "label": 'w = '+edges[i]["connectionWeight"],
+						'font-size':12,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9});
+	
+		//makeTippy(cytoscapeObject.getElementById(edges[i]["source"]+"_"+edges[i]["target"]+"_"+edges[i]["timestep"]), "epoch  sending "  , 'bottom').show();
+		
+	} 
+	cytoscapeObject.nodes().style({'text-valign': 'center','background-color':'#ccc', 'border-color':'black', 'border-width':1 });
+	cytoscapeObject.edges().style({'line-color':'#333', 
+						'border-color':'black', 'border-width':2 ,
+					'curve-style': 'bezier',
+					'width': 1,  
+					'target-arrow-shape': 'triangle', 
+					 'target-arrow-color': '#333',   
+					'arrow-scale':1.5});
+	 
+	cytoscapeObject.edges('[connectionWeight < 0]').style({'line-color': 'red', 'target-arrow-shape': 'triangle-cross','target-arrow-color': 'red' });
+	
+	
+	//draw invisible  edges from invisible neurons to sensory neurons, to signify input from environment
+	for (var i = 0; i < neurons.length; i++) {
+	 
+		if( brainObject.neurons[i].isSensoryNeuron  == true){ 
+			  
+			var thisedge  = cytoscapeObject.add({
+								data: { id: neurons[i]["name"]+"_ENVINPUT", 
+										source : neurons[i]["name"]+"_ENV", 
+										target  : neurons[i]["name"]  
+										 }
+								}
+							);
+			thisedge.style({"source-text-offset":24 ,'font-family':'Lucida Console,Courier New,Courier','text-valign':'top',
+							"source-label": "", "label": '','line-color':'blue',
+							'font-size':8,'font-style':'normal','text-background-color':'white','text-background-opacity':0.9,
+							'line-color':'blue', 
+							'border-color':'black', 'border-width':2 ,
+							'curve-style': 'bezier',
+							'width': 1,  'line-style':'dashed',
+							'target-arrow-shape': 'vee', 
+							 'target-arrow-color': 'blue',   
+							'arrow-scale':1.5
+							});
+		} 
+	}
+	
+	
+	
+	//mark Z as always on
+	//makeTippy(cytoscapeObject.getElementById("Z"), "always On" ).show();
+	 
+
+	cytoscapeObject.layout({
+		name: 'breadthfirst'
+	}).run();  
+}
+
+
+
+
+
+var epochCount = 0;
+var circuit;
+var brain1;
+var datastream_to_use;		
+var cy;
+var chartobj;
+var idleInterval = null;
+var idleTime = 0;
+
+
+
+function get_simple_sequential_circuit1_brain(){
+	var brainx = new Brain({stepsAhead:3}); 
+	
+	
+	//Inverse Neuron
+	var A = new Neuron({name:  "A",threshold:1,	isBinaryOutput :true,isSensoryNeuron:true}); 
+	var B = new Neuron({name:  "B",threshold:1,	isBinaryOutput :true,isSensoryNeuron:false}); 
+	var C = new Neuron({name:  "C",threshold:1,	isBinaryOutput :true,isSensoryNeuron:false}); 
+	var D = new Neuron({name:  "D",threshold:1,	isBinaryOutput :true,isSensoryNeuron:false}); 
+	
+	brainx.add_neuron( A );
+	brainx.add_neuron( B ); 
+	brainx.add_neuron( C ); 
+	brainx.add_neuron( D ); 
+	brainx.init_connections()
+	brainx.create_connection({ fromNeuronName :"A", toNeuronName :"B", synapticStepNumber:1, connectionWeight:1.0});
+	brainx.create_connection({ fromNeuronName :"B", toNeuronName :"C", synapticStepNumber:1, connectionWeight:1.0});
+	brainx.create_connection({ fromNeuronName :"C", toNeuronName :"D", synapticStepNumber:1, connectionWeight:1.0});
+	
+	
+	var datastream_to_use  = [
+		
+		   {"A" : 1 }, 
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 1 }, 
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 1 }, 
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 1 }, 
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 1 }, 
+		   {"A" : 0  },
+		   {"A" : 0  },
+		   {"A" : 0  },
+		];   
+	  
+	return { brain:brainx, datastream_to_use :datastream_to_use} ;
+}
+
+
+$(window).on('load', function() {
+	
+	var chartoptions = getChartOptions();
+	chartobj = new ApexCharts(
+	  document.querySelector("#chart"),
+	  chartoptions
+	); 
+	chartobj.render();  
+    cy = cytoscape({ userZoomingEnabled:false, container: document.getElementById('cy')});  
+	
+	circuit = get_simple_sequential_circuit1_brain();
+	brain1 = circuit.brain;
+	datastream_to_use = circuit.datastream_to_use; 
+	
+	
+	
+	drawGraphCustom(brain1, cy);     
+	
+	cy.layout({
+		name: 'preset'
+	}).run();  
+	
+	var A_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["A"]; }); 
+	//var B_values = $.map(datastream_to_use, function(  dictobj,index) { return  dictobj["B"]; });
+	var mapvalues = [];
+	//for(i=0;i<A_values.length;i++){
+	//	mapvalues.push(" { A:"+A_values[i]+" , B:"+B_values[i]+"} ")
+	//}
+	
+
+	$('#inputstream').html( "<br> <b>Illustrating  firing sequence in a neural network:</b><br>  &bull; &nbsp; &nbsp;Input datastream to A  =  [  "+A_values.join("  ,  ") +"  ] <br>"  );
+	 
+ 
+	  cy.$('#A').position({	  x: 150 ,y:220	});
+	  cy.$('#B').position({	  x: 350 ,y:220	}); 
+	  cy.$('#C').position({	  x: 550 ,y:220	}); 
+	  cy.$('#D').position({	  x: 750 ,y:220	}); 
+ 
+   // send_inputs();
+});
+
+function send_inputs(){  
+	epochCount=0;
+	brain1.clear_inputs();
+	$('#sendbutton').attr("disabled", true);
+	var tippyPlacement = 'top';  
+	clearInterval(idleInterval);
+	idleInterval = setInterval(function(){ 
+			send_info_to_brain(datastream_to_use, brain1, cy, chartobj,tippyPlacement); 
+	},1000); 
+	
+}
+
+
+function send_info_to_brain(input_datastream, brainObject, cytoscapeObject, chartObject, tippyPlacement){ 
+	
+	
+	if (epochCount >= input_datastream.length){
+		$('#epochinfo').html ( "Current epoch  : "+ epochCount +" <br>  " + "End  of inputs");
+		$('#sendbutton').attr("disabled", false); 
+		return;
+	}else{
+		destroyTippys();
+	}
+	
+	$('#epochinfo').html("Current epoch  : "+ epochCount +" <br>  " );
+	//for (var vv = 0;vv<input_datastream.length;vv++){ 
+	
+	vv = epochCount;
+	brainObject.clear_inputs();
+	
+	
+	
+	//send sensory values from datastream to brain
+	for(var neuronName in input_datastream[vv]) {
+		brainObject.sensoryValuesDict[ neuronName ] = parseFloat(input_datastream[vv][neuronName]);
+		
+		
+		$('#epochinfo').html ( $('#epochinfo').html() + "<br>Sending input signal to neuron "+neuronName+" with intensity  <i>i<sub>a</sub></i>= "+ parseFloat(input_datastream[vv][neuronName]));
+		makeTippy(cytoscapeObject.getElementById(neuronName+'_ENVINPUT'),  "  sending  "+ input_datastream[vv][neuronName]  , "left").show();
+	}
+	
+	//then move to next epoch  
+	var tippyStr = " input <i>i<sub>a</sub></i>= "+ input_datastream[vv][neuronName]  +"<br> threshold <i>θ<sub>a</sub></i>=   "+brainObject.get_neuron_by_name(neuronName).threshold;
+	var outputval;
+	if (input_datastream[vv][neuronName]  >= brainObject.get_neuron_by_name(neuronName).threshold ){
+		
+		  outputval = input_datastream[vv][neuronName];
+		if (brainObject.get_neuron_by_name(neuronName).isBinaryOutput == true){
+			outputval = 1; 
+		} 
+		tippyStr +="<br><br>input >= threshold <br> neuron FIRES with output  <i>O<sub>a</sub></i>  =  "+outputval; 
+		
+	}else{
+		tippyStr +="<br>input < threshold, neuron DOESN'T FIRE"; 
+		outputval = 0;
+	}
+	
+	tippyPlacement="bottom";
+	//makeTippy(cytoscapeObject.getElementById(neuronName), tippyStr , tippyPlacement).show();
+	
+	
+	
+	
+	
+	
+	
+	///
+	
+	
+	brainObject.next_epoch();
+	
+	////
+	
+	var connweight = brain1.connectionMatrix [1] [0][1] ;
+	var tippyStr = "connweight  <i>w<sub>ab</sub></i> =  "+connweight+"<br> input <i>i<sub>b</sub></i>= <i>O<sub>a</sub></i> * <i>w<sub>ab</sub></i> <br> =  "+brainObject.firingFrame[1][0] +" * "+connweight  +" <br> threshold <i>θ<sub>b</sub></i>=   "+brainObject.get_neuron_by_name("B").threshold;
+	console.log(brainObject.firingFrame[0]);
+	var thisinputval = brainObject.firingFrame[1][0] * connweight;
+	if (thisinputval  >= brainObject.get_neuron_by_name("B").threshold ){
+		
+		
+		if (brainObject.get_neuron_by_name("B").isBinaryOutput == true){
+			outputval = 1; 
+		} else{
+			outputval = thisinputval;
+		}
+		tippyStr +="<br><br>input >= threshold <br> neuron FIRES with output  <i>O<sub>b</sub></i>  =  "+outputval; 
+		
+	}else{
+		tippyStr +="<br>input < threshold, neuron DOESN'T FIRE"; 
+		outputval = 0;
+	}
+	
+	tippyPlacement="right";
+	//makeTippy(cytoscapeObject.getElementById("B"), tippyStr , tippyPlacement).show();
+	
+	drawFiringFrame(brainObject,chartObject, cytoscapeObject);
+		
+	epochCount +=1;
+    
+}
+
+
+
+</script>
+ 
+	
+<body style='background-color:white;font-family:Nunito Sans;background-color:lightyellow;'>
+ 
+	<div class="row"  style="top:0px;height:400px;">
+	  <div class="col-sm-12"  id="cy" style='top:0;height:400px;margin-left:0;margin-top:0;background-color:transparent;'> </div> 
+	 
+	</div>
+	<div class="row">   
+		<div class="col-sm-1"  ></div>
+		<div class="col-sm-11" > <button id='sendbutton' onclick='javascript:send_inputs();'> Click to send inputs</button> </div> 
+		 
+	 </div>
+
+	<div class="row" style="top:420px; "> 
+		<div class="col-sm-1"  ></div>
+		<div class="col-sm-11" id='inputstream'></div> 
+	 </div>
+	 <br>
+	 
+	<div class="row"> 
+		<div class="col-sm-12" id="epochinfo" style='display:none;background-color:#efffff;top:400px;width:400px;'> </div>
+		
+	 </div>
+	 
+	<div class="row">
+	<div class="col-sm-12" id="chart" style='display:none;width:0%;background-color:lightyellow;top:0;'> 	</div>   
+	 </div>
+    
+
+</body>	
+	  
+</html>
